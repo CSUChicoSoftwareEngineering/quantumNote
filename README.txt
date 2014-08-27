@@ -7,7 +7,7 @@ Meet the Team
 
 =======
 Purpose:
-    Note taking application geared towards cience students
+    Note taking application geared towards science students
 
 Meet the Team:
     Martin Ramirez
