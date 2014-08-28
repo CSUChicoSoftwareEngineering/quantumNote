@@ -13,3 +13,6 @@ Meet the Team:
 
 Meet the Team:
     Sukhparspreet Singh : CS and Biochemistry
+
+Meet the Team:
+    Kyle Rocha-Brownell - Physics and Computer Science major
