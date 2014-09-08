@@ -3,6 +3,7 @@
 
     <string name="app_name">quantumNote</string>
     <string name="hello_world">Hello test!</string>
+    <string name="hello_yo">Yo test!</string>
     <string name="action_settings">Settings</string>
 
 </resources>
