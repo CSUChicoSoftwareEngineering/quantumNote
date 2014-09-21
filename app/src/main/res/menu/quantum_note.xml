@@ -5,4 +5,15 @@
         android:title="@string/action_settings"
         android:orderInCategory="100"
         android:showAsAction="never" />
+
+    <item android:id="@+id/new_note"
+        android:title="@string/new_note"
+        android:orderInCategory="90"
+        android:showAsAction="never" />
+
+    <item android:id="@+id/save_note"
+        android:title="@string/save_note"
+        android:orderInCategory="90"
+        android:showAsAction="never" />
+
 </menu>
