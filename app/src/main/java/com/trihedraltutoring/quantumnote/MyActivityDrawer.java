@@ -8,29 +8,31 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import android.graphics.Color;
 
 
 public class MyActivityDrawer extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
-
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
-
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
+    InkView inkView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +47,8 @@ public class MyActivityDrawer extends Activity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+
+        inkView = (InkView) findViewById(R.id.inkView); // get inkView defined in xml
     }
 
     @Override
@@ -141,6 +145,19 @@ public class MyActivityDrawer extends Activity
             ((MyActivityDrawer) activity).onSectionAttached(
                     getArguments().getInt(ARG_SECTION_NUMBER));
         }
+    }
+
+    @Override
+    /**
+     * Called for all touch events. Needs update to allow use of the menu.
+     */
+    public boolean dispatchTouchEvent(MotionEvent e) {
+        float x = e.getX();
+        float y = e.getY();
+        Log.d("INFO", "x = " + x + " ,y = " + y);
+        inkView.addPoint(x,y);
+        inkView.invalidate();
+        return false;  // tell system that event was not fully handled
     }
 
 }
