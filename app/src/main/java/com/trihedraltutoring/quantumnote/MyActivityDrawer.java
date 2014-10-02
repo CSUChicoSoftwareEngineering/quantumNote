@@ -154,6 +154,9 @@ public class MyActivityDrawer extends Activity
     public boolean dispatchTouchEvent(MotionEvent e) {
         float x = e.getX();
         float y = e.getY();
+        if (e.getAction() == MotionEvent.ACTION_DOWN){
+            inkView.addStroke(x,y);
+        }
         Log.d("INFO", "x = " + x + " ,y = " + y);
         inkView.addPoint(x,y);
         inkView.invalidate();

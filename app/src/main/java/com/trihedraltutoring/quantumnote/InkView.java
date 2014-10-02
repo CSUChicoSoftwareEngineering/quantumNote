@@ -15,37 +15,49 @@ import java.util.List;
  */
 public class InkView extends View {
     Paint paint = new Paint();
-    List<Point> pList;
+    //List<Point> pList;
+    List< List<Point> > pDLL;
 
     public InkView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
         paint.setColor(Color.BLACK);
-        pList = new LinkedList();
+        //pList = new LinkedList();
+        pDLL = new LinkedList();
     }
 
     @Override
     public void onDraw(Canvas canvas) {
         float x0=0, y0=0;
-        if (pList.size() > 0) {
-            x0 = (pList.get(0)).x;
-            y0 = (pList.get(0)).y;
-        }
-        for(Point p : pList){
-            canvas.drawLine(x0, y0, p.x, p.y, paint);
-            x0 = p.x;
-            y0 = p.y;
+        for(List<Point> L : pDLL){
+            if (L.size() > 0) {
+                x0 = (L.get(0)).x;
+                y0 = (L.get(0)).y;
+            }
+            for(Point p : L) {
+                canvas.drawLine(x0, y0, p.x, p.y, paint);
+                x0 = p.x;
+                y0 = p.y;
+            }
         }
     }
 
     public void addPoint(float x, float y) {
-        pList.add(new Point(x, y));
+        pDLL.get(pDLL.size()-1).add( new Point( x, y, System.currentTimeMillis() ) );
+    }
+
+    public void addStroke(float x, float y){
+        List<Point> stroke = new LinkedList();
+        stroke.add( new Point( x, y, System.currentTimeMillis() ) );
+        pDLL.add(stroke);
     }
 
     private class Point {
         public float x, y;
-        public Point(float i, float j){
-            x = i;
-            y = j;
+        public long t;
+        public Point(float x1, float y1, long t1){
+            x = x1;
+            y = y1;
+            t = t1;
         }
     }
 
