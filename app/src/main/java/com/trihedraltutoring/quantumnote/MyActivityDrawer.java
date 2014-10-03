@@ -17,6 +17,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
+import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.graphics.Color;
@@ -49,6 +50,18 @@ public class MyActivityDrawer extends Activity
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
         inkView = (InkView) findViewById(R.id.inkView); // get inkView defined in xml
+
+        // Create onGlobalLayout to be called after inkView is drawn ///
+        ViewTreeObserver vto = inkView.getViewTreeObserver();
+        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                inkView.setOffset();
+                inkView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+            }
+        });
+
+
     }
 
     @Override
@@ -149,18 +162,21 @@ public class MyActivityDrawer extends Activity
 
     @Override
     /**
-     * Called for all touch events. Needs update to allow use of the menu.
+     * Called for all touch events
      */
     public boolean dispatchTouchEvent(MotionEvent e) {
         float x = e.getX();
         float y = e.getY();
-        if (e.getAction() == MotionEvent.ACTION_DOWN){
-            inkView.addStroke(x,y);
+        if (findViewById(R.id.navigation_drawer).getVisibility() != View.VISIBLE) {
+        //if (!mNavigationDrawerFragment.isDrawerOpen()){
+            if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                inkView.addStroke(x, y);
+            }
+            inkView.addPoint(x, y);
+            inkView.invalidate();
         }
-        //Log.d("INFO", "x = " + x + " ,y = " + y);
-        inkView.addPoint(x,y);
-        inkView.invalidate();
-        return false;  // tell system that event was not fully handled
+        //Log.d("INFO", "getVisibility: " + findViewById(R.id.navigation_drawer).getVisibility());
+        return super.dispatchTouchEvent(e); // returns whether event was handled
     }
 
 }

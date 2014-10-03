@@ -15,14 +15,14 @@ import java.util.List;
  */
 public class InkView extends View {
     Paint paint = new Paint();
-    //List<Point> pList;
     List< List<Point> > pDLL;
+    int yOffset;
 
     public InkView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
         paint.setColor(Color.BLACK);
-        //pList = new LinkedList();
         pDLL = new LinkedList();
+
     }
 
     @Override
@@ -41,13 +41,19 @@ public class InkView extends View {
         }
     }
 
+    public void setOffset() {
+        int[] v = new int[2];
+        getLocationOnScreen(v);
+        yOffset = v[1];
+    }
+
     public void addPoint(float x, float y) {
-        pDLL.get(pDLL.size()-1).add( new Point( x, y, System.currentTimeMillis() ) );
+        pDLL.get(pDLL.size()-1).add(new Point(x, y - yOffset, System.currentTimeMillis()));
     }
 
     public void addStroke(float x, float y){
         List<Point> stroke = new LinkedList();
-        stroke.add( new Point( x, y, System.currentTimeMillis() ) );
+        stroke.add( new Point( x, y-yOffset, System.currentTimeMillis() ) );
         pDLL.add(stroke);
     }
 
