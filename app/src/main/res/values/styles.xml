@@ -2,7 +2,12 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
+        <item name="android:actionBarStyle">@style/ActionBar.Solid.Qnote</item>
         <!-- Customize your theme here. -->
+    </style>
+
+    <style name="ActionBar.Solid.Qnote" parent="@android:style/Widget.Holo.ActionBar.Solid">
+        <item name="android:background">@drawable/ab_solid_qnote</item>
     </style>
 
 </resources>
