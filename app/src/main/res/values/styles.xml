@@ -6,7 +6,7 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="ActionBar.Solid.Qnote" parent="@android:style/Widget.Holo.ActionBar.Solid">
+    <style name="ActionBar.Solid.Qnote" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
         <item name="android:background">@drawable/ab_solid_qnote</item>
     </style>
 
