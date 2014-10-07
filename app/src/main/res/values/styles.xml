@@ -8,6 +8,7 @@
 
     <style name="ActionBar.Solid.Qnote" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
         <item name="android:background">@drawable/ab_solid_qnote</item>
+        <item name="android:icon">@drawable/qnote_nobg</item>
     </style>
 
 </resources>
