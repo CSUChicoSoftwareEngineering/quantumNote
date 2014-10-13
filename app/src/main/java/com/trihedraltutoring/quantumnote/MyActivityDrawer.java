@@ -6,21 +6,25 @@ import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
 import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
-import android.widget.TextView;
-import android.graphics.Color;
+import android.widget.Button;
+import android.widget.PopupMenu;
+import android.widget.Toast;
 
 
 public class MyActivityDrawer extends Activity
@@ -34,11 +38,38 @@ public class MyActivityDrawer extends Activity
      */
     private CharSequence mTitle;
     InkView inkView;
+    private Button pieControl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_activity_drawer);
+        pieControl = (Button) findViewById(R.id.pieControlbtn);
+
+
+        pieControl.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+
+                PopupMenu popup = new PopupMenu(MyActivityDrawer.this, pieControl);
+                popup.getMenuInflater().inflate(R.menu.pie_control, popup.getMenu());
+
+
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    public boolean onMenuItemClick(MenuItem item) {
+                        Toast.makeText(
+                                MyActivityDrawer.this,
+                                "You Clicked : " + item.getTitle(),
+                                Toast.LENGTH_SHORT
+                        ).show();
+                        return true;
+                    }
+                });
+                popup.show();
+                return false;
+        }
+        });
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -60,8 +91,6 @@ public class MyActivityDrawer extends Activity
                 inkView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
         });
-
-
     }
 
     @Override
@@ -123,7 +152,7 @@ public class MyActivityDrawer extends Activity
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment {
+    public static class PlaceholderFragment extends Fragment implements View.OnClickListener {
         /**
          * The fragment argument representing the section number for this
          * fragment.
@@ -150,6 +179,11 @@ public class MyActivityDrawer extends Activity
                 Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_my_activity_drawer, container, false);
             return rootView;
+        }
+
+        public void onClick(View v){
+
+
         }
 
         @Override
