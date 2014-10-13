@@ -15,24 +15,12 @@
         android:layout_height="match_parent" >
 
 
-        <Button
+        <view
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Pie Control"
-            android:onClick="showPopup"
-            android:id="@+id/pieControlbtn"
-            class="com.trihedraltutoring.quantumnote.PieControl"
-            android:layout_gravity="center"
-            android:clickable="true" />
-
-        <view
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
             class="com.trihedraltutoring.quantumnote.InkView"
             android:id="@+id/inkView"
-            android:layout_gravity="center" />
-
-
+            android:layout_gravity="center_horizontal|top" />
     </FrameLayout>
 
     <!-- android:layout_gravity="start" tells DrawerLayout to treat
@@ -48,6 +36,5 @@
         android:layout_gravity="start"
         android:name="com.trihedraltutoring.quantumnote.NavigationDrawerFragment"
         tools:layout="@layout/fragment_navigation_drawer" />
-
 
 </android.support.v4.widget.DrawerLayout>
