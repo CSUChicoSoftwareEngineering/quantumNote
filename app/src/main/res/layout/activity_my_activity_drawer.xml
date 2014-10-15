@@ -5,7 +5,8 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MyActivityDrawer">
+    tools:context=".MyActivityDrawer"
+    android:clickable="true">
 
     <!-- As the main content view, the view below consumes the entire
          space available using match_parent in both dimensions. -->
@@ -15,12 +16,39 @@
         android:layout_height="match_parent" >
 
 
-        <view
+        <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="pieControl"
+            android:onClick=""
+            android:id="@+id/pieControlbtn"
+            class="com.trihedraltutoring.quantumnote.PieControl"
+            android:layout_gravity="center"
+            android:clickable="true" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Camera"
+            android:id="@+id/camera"
+            android:layout_gravity="center_horizontal|bottom"
+            android:clickable="true" />
+
+        <view
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             class="com.trihedraltutoring.quantumnote.InkView"
             android:id="@+id/inkView"
-            android:layout_gravity="center_horizontal|top" />
+            android:layout_gravity="center" />
+
+        <ImageView
+            android:layout_width="143dp"
+            android:layout_height="143dp"
+            android:id="@+id/imageView1"
+            android:layout_gravity="bottom|right"
+            android:clickable="true" />
+
+
     </FrameLayout>
 
     <!-- android:layout_gravity="start" tells DrawerLayout to treat
@@ -36,5 +64,6 @@
         android:layout_gravity="start"
         android:name="com.trihedraltutoring.quantumnote.NavigationDrawerFragment"
         tools:layout="@layout/fragment_navigation_drawer" />
+
 
 </android.support.v4.widget.DrawerLayout>

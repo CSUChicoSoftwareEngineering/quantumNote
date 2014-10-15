@@ -5,10 +5,16 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -23,8 +29,15 @@ import android.support.v4.widget.DrawerLayout;
 import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.Toast;
+import android.widget.TextView;
+import android.graphics.Color;
+import android.widget.Toast;
+
+import java.io.File;
+import java.net.URI;
 
 
 public class MyActivityDrawer extends Activity
@@ -39,12 +52,26 @@ public class MyActivityDrawer extends Activity
     private CharSequence mTitle;
     InkView inkView;
     private Button pieControl;
+    ImageView iv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_activity_drawer);
+
+        iv = (ImageView) findViewById(R.id.imageView1);
+        Button b = (Button) findViewById(R.id.camera);
+        b.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(intent, 0);
+            }
+        });
+
+
         pieControl = (Button) findViewById(R.id.pieControlbtn);
 
 
@@ -71,6 +98,7 @@ public class MyActivityDrawer extends Activity
         }
         });
 
+
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
@@ -82,6 +110,7 @@ public class MyActivityDrawer extends Activity
 
         inkView = (InkView) findViewById(R.id.inkView); // get inkView defined in xml
 
+
         // Create onGlobalLayout to be called after inkView is drawn ///
         ViewTreeObserver vto = inkView.getViewTreeObserver();
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -91,6 +120,13 @@ public class MyActivityDrawer extends Activity
                 inkView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Bitmap bm = (Bitmap) data.getExtras().get("data");
+        iv.setImageBitmap(bm);
     }
 
     @Override
@@ -181,16 +217,16 @@ public class MyActivityDrawer extends Activity
             return rootView;
         }
 
-        public void onClick(View v){
-
-
-        }
-
         @Override
         public void onAttach(Activity activity) {
             super.onAttach(activity);
             ((MyActivityDrawer) activity).onSectionAttached(
                     getArguments().getInt(ARG_SECTION_NUMBER));
+        }
+
+        @Override
+        public void onClick(View view) {
+
         }
     }
 
@@ -212,5 +248,6 @@ public class MyActivityDrawer extends Activity
         //Log.d("INFO", "getVisibility: " + findViewById(R.id.navigation_drawer).getVisibility());
         return super.dispatchTouchEvent(e); // returns whether event was handled
     }
+
 
 }
