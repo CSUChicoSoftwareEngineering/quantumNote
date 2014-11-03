@@ -21,6 +21,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".OpenCamera"
+            android:label="@string/title_activity_open_camera" >
+        </activity>
     </application>
 
 </manifest>
