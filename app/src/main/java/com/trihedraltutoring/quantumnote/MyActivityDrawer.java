@@ -31,6 +31,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 import android.widget.TextView;
 import android.graphics.Color;
@@ -38,10 +39,12 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Observable;
+import java.util.Observer;
 
 
-public class MyActivityDrawer extends Activity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+public class MyActivityDrawer extends Activity implements Observer,
+        NavigationDrawerFragment.NavigationDrawerCallbacks {
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
@@ -51,6 +54,7 @@ public class MyActivityDrawer extends Activity
      */
     private CharSequence mTitle;
     InkView inkView;
+    AudioRecorder audio;
     private Button pieControl;
     ImageView iv;
 
@@ -59,6 +63,8 @@ public class MyActivityDrawer extends Activity
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_activity_drawer);
+        audio = new AudioRecorder(this);
+        audio.addObserver(this);
 
         iv = (ImageView) findViewById(R.id.imageView1);
         Button b = (Button) findViewById(R.id.camera);
@@ -120,6 +126,12 @@ public class MyActivityDrawer extends Activity
                 inkView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
         });
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+           audio.pause();
     }
 
     @Override
@@ -230,6 +242,43 @@ public class MyActivityDrawer extends Activity
         }
     }
 
+
+    public void pieClicked(View v){
+        v.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    /**
+     * Called by AudioRecorder Whenever state variables change.
+     */
+    public void update(Observable observable, Object data) {
+        Log.d("INFO", "update Called");
+        Button playB = (Button) findViewById(R.id.playButton);
+        Button recordB = (Button) findViewById(R.id.recButton);
+        if (audio.isPlaying()) playB.setText("Stop");
+        else playB.setText("Play");
+        if (audio.isRecording()) recordB.setText("Stop");
+        else recordB.setText("Rec");
+    }
+
+    public void recClicked(View v){
+        if (audio.isRecording()){
+            audio.stopRecording();
+        }
+        else{
+            audio.startRecording();
+        }
+    }
+
+    public void playClicked(View v){
+        if (audio.isPlaying()){
+            audio.stopPlaying();
+        }
+        else{
+            audio.startPlaying();
+        }
+    }
+
     @Override
     /**
      * Called for all touch events
@@ -240,10 +289,29 @@ public class MyActivityDrawer extends Activity
         if (findViewById(R.id.navigation_drawer).getVisibility() != View.VISIBLE) {
         //if (!mNavigationDrawerFragment.isDrawerOpen()){
             if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                Log.d("INFO", "adding stroke");
                 inkView.addStroke(x, y);
             }
-            inkView.addPoint(x, y);
-            inkView.invalidate();
+            else if (e.getAction() == MotionEvent.ACTION_MOVE) {
+                Log.d("INFO", "adding point");
+                inkView.addPoint(x, y);
+                inkView.invalidate();
+            }
+            /**
+            else if (e.getAction() == MotionEvent.ACTION_UP) {
+
+                LayoutInflater inflater = (LayoutInflater)
+                        this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                PopupWindow pw = new PopupWindow(
+                        inflater.inflate(R.layout.pie, null, false),
+                        500,
+                        500,
+                        true);
+                // The code below assumes that the root container has an id called 'main'
+                pw.showAtLocation(this.findViewById(R.id.inkView), Gravity.CENTER, 0, 0);
+            }
+             **/
+
         }
         //Log.d("INFO", "getVisibility: " + findViewById(R.id.navigation_drawer).getVisibility());
         return super.dispatchTouchEvent(e); // returns whether event was handled
