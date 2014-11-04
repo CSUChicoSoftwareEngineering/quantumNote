@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
@@ -39,6 +40,8 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.net.URI;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -55,8 +58,11 @@ public class MyActivityDrawer extends Activity implements Observer,
     private CharSequence mTitle;
     InkView inkView;
     AudioRecorder audio;
+    int playbackIndex = 0;
     private Button pieControl;
     ImageView iv;
+    Handler playbackHandler;
+    List<Sound> sounds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +71,7 @@ public class MyActivityDrawer extends Activity implements Observer,
         setContentView(R.layout.activity_my_activity_drawer);
         audio = new AudioRecorder(this);
         audio.addObserver(this);
+        sounds = new LinkedList();
 
         iv = (ImageView) findViewById(R.id.imageView1);
         Button b = (Button) findViewById(R.id.camera);
@@ -131,7 +138,7 @@ public class MyActivityDrawer extends Activity implements Observer,
     @Override
     public void onPause() {
         super.onPause();
-           audio.pause();
+           audio.releaseAll();
     }
 
     @Override
@@ -242,9 +249,20 @@ public class MyActivityDrawer extends Activity implements Observer,
         }
     }
 
-
     public void pieClicked(View v){
-        v.setVisibility(View.INVISIBLE);
+
+    }
+
+    public void playAll(){
+        Log.d("INFO", "Playing new audio file");
+        if (playbackIndex < sounds.size()) {
+            audio.startPlaying(playbackIndex + ".mp3");
+            inkView.trace(sounds.get(playbackIndex).startTime,
+                    sounds.get(playbackIndex).endTime); // start and length of highlighted section
+            playbackIndex++;
+        }
+        else
+            playbackIndex = 0;
     }
 
     @Override
@@ -252,30 +270,40 @@ public class MyActivityDrawer extends Activity implements Observer,
      * Called by AudioRecorder Whenever state variables change.
      */
     public void update(Observable observable, Object data) {
-        Log.d("INFO", "update Called");
         Button playB = (Button) findViewById(R.id.playButton);
         Button recordB = (Button) findViewById(R.id.recButton);
-        if (audio.isPlaying()) playB.setText("Stop");
-        else playB.setText("Play");
-        if (audio.isRecording()) recordB.setText("Stop");
-        else recordB.setText("Rec");
+        if (audio.getState() == AudioRecorder.PLAYING) playB.setText("Stop");
+        else if (audio.getState() == AudioRecorder.RECORDING) recordB.setText("Stop");
+        else {
+            playB.setText("Play");
+            recordB.setText("Rec");
+            if (audio.getPrevState() == AudioRecorder.PLAYING){
+                playAll(); // play next audio file
+            }
+        }
     }
 
     public void recClicked(View v){
-        if (audio.isRecording()){
+        if (audio.getState() == AudioRecorder.RECORDING){
+            sounds.get(sounds.size()-1).endTime = System.currentTimeMillis();
             audio.stopRecording();
         }
-        else{
-            audio.startRecording();
+        else if (audio.getState() == AudioRecorder.STOPPED){
+            audio.startRecording(sounds.size() + ".mp3");
+            sounds.add(new Sound(System.currentTimeMillis()));
         }
     }
 
+    /**
+     *
+     * Plays back all audio files associated with note while highlighting text
+     */
     public void playClicked(View v){
-        if (audio.isPlaying()){
+        if (audio.getState() == AudioRecorder.PLAYING){
             audio.stopPlaying();
         }
-        else{
-            audio.startPlaying();
+        else if (audio.getState() == AudioRecorder.STOPPED){
+            playAll();
         }
     }
 
@@ -317,5 +345,12 @@ public class MyActivityDrawer extends Activity implements Observer,
         return super.dispatchTouchEvent(e); // returns whether event was handled
     }
 
-
+    private class Sound{
+        public String filePath;
+        public long startTime;
+        public long endTime;
+        public Sound(long t0){
+            startTime = t0;
+        }
+    }
 }
