@@ -38,13 +38,19 @@ import android.widget.TextView;
 import android.graphics.Color;
 import android.widget.Toast;
 import android.graphics.Bitmap;
+import android.view.View.OnClickListener;
+
 
 import java.io.File;
 import java.net.URI;
+import com.capricorn.ArcMenu;
+import com.capricorn.RayMenu;
 
 
 public class MyActivityDrawer extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+
+    private static final int[] ITEM_DRAWABLES = {R.drawable.ic_launcher, R.drawable.ic_launcher, R.drawable.ic_launcher, R.drawable.ic_launcher, R.drawable.ic_launcher};
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
@@ -57,6 +63,7 @@ public class MyActivityDrawer extends Activity
     private Button pieControl;
     ImageView iv;
     static final int REQUEST_IMAGE_CAPTURE = 1;
+
 
     public void openCamera(View view) {
 //        Intent data = new Intent();
@@ -97,32 +104,43 @@ public class MyActivityDrawer extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_activity_drawer);
 
-        pieControl = (Button) findViewById(R.id.pieControlbtn);
+//        pieControl = (Button) findViewById(R.id.pieControlbtn);
 
+        ArcMenu arcMenu = (ArcMenu) findViewById(R.id.arc_menu);
 
-        pieControl.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
+        initArcMenu(arcMenu, ITEM_DRAWABLES);
 
-                PopupMenu popup = new PopupMenu(MyActivityDrawer.this, pieControl);
-                popup.getMenuInflater().inflate(R.menu.pie_control, popup.getMenu());
+        RayMenu rayMenu = (RayMenu) findViewById(R.id.ray_menu);
 
+        final int itemCount = ITEM_DRAWABLES.length;
+        for(int i = 0; i < itemCount; i++) {
+            ImageView item = new ImageView(this);
+            item.setImageResource(ITEM_DRAWABLES[i]);
 
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    public boolean onMenuItemClick(MenuItem item) {
-                        Toast.makeText(
-                                MyActivityDrawer.this,
-                                "You Clicked : " + item.getTitle(),
-                                Toast.LENGTH_SHORT
-                        ).show();
-                        return true;
+            final int position = i;
+            rayMenu.addItem(item, new OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    if (position == 0) {
+                        Toast.makeText(MyActivityDrawer.this, "Back",
+                                Toast.LENGTH_SHORT).show();
+                    } else if (position == 1) {
+                        Toast.makeText(MyActivityDrawer.this, "Forward",
+                                Toast.LENGTH_SHORT).show();
+                    } else if (position == 2) {
+                        Toast.makeText(MyActivityDrawer.this, "Camera",
+                                Toast.LENGTH_SHORT).show();
+                    } else if (position == 3) {
+                        Toast.makeText(MyActivityDrawer.this, "Record",
+                                Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(MyActivityDrawer.this, "Save",
+                                Toast.LENGTH_SHORT).show();
                     }
-                });
-                popup.show();
-                return false;
+                }
+            });
         }
-        });
-
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -145,6 +163,39 @@ public class MyActivityDrawer extends Activity
                 inkView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
         });
+    }
+
+    //This sets up the PieMenu
+    private void initArcMenu(ArcMenu menu, int[] itemDrawables) {
+        final int itemCount = itemDrawables.length;
+        for (int i = 0; i < itemCount; i++) {
+            ImageView item = new ImageView(this);
+            item.setImageResource(itemDrawables[i]);
+
+            final int position = i;
+            menu.addItem(item, new OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    if (position == 0) {
+                        Toast.makeText(MyActivityDrawer.this, "Back",
+                                Toast.LENGTH_SHORT).show();
+                    } else if (position == 1) {
+                        Toast.makeText(MyActivityDrawer.this, "Forward",
+                                Toast.LENGTH_SHORT).show();
+                    } else if (position == 2) {
+                        Toast.makeText(MyActivityDrawer.this, "Camera",
+                                Toast.LENGTH_SHORT).show();
+                    } else if (position == 3) {
+                        Toast.makeText(MyActivityDrawer.this, "Record",
+                                Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(MyActivityDrawer.this, "Save",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
     }
 
     @Override
