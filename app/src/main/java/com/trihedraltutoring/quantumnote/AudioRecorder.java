@@ -20,11 +20,14 @@ import android.media.MediaPlayer;
 
 public class AudioRecorder extends Observable  {
 
-    private static String mFileName;
+    public static int RECORDING = 2;
+    public static int PLAYING = 1;
+    public static int STOPPED = 0;
+    private String fileName;
     private MediaRecorder mRecorder;
     private MediaPlayer   mPlayer;
-    boolean isRecording = false;
-    boolean isPlaying = false;
+    int prevState = 0;
+    int audioState = 0;
     Context context;
 
     public AudioRecorder(Context c){
@@ -35,15 +38,26 @@ public class AudioRecorder extends Observable  {
         btManager.startBluetoothSco();
     }
 
-    public boolean isRecording(){
-        return isRecording;
+    /**
+     * Returns previous playing/recording state
+     * @return 0: Stopped, 1: Playing, 2: Recording
+     */
+    public int getPrevState() {
+        return prevState;
     }
 
-    public boolean isPlaying(){
-        return isPlaying;
+    /**
+     * Returns current playing/recording state
+     * @return 0: Stopped, 1: Playing, 2: Recording
+     */
+    public int getState(){
+        return audioState;
     }
 
-    public void pause() {
+    /**
+     * Releases media resources in use
+     */
+    public void releaseAll() {
         if (mRecorder != null) {
             mRecorder.release();
             mRecorder = null;
@@ -54,10 +68,14 @@ public class AudioRecorder extends Observable  {
         }
     }
 
-    public void startPlaying() {
+    /**
+     * Play audio file
+     * @param name File path relative to app directory
+     */
+    public void startPlaying(String name) {
         mPlayer = new MediaPlayer();
-        mFileName = "test.kyle";
-        File audioFile = new File(context.getFilesDir(), mFileName);
+        fileName = name;
+        File audioFile = new File(context.getFilesDir(), fileName);
         try {
             mPlayer.setOnCompletionListener(new donePlayingListener());
         } catch(NullPointerException e){
@@ -68,7 +86,8 @@ public class AudioRecorder extends Observable  {
             mPlayer.setDataSource(audioFile.getAbsolutePath());
             mPlayer.prepare();
             mPlayer.start();
-            isPlaying = true;
+            prevState = audioState;
+            audioState = 1;
             setChanged();
             notifyObservers();
         } catch (IOException e) {
@@ -78,17 +97,25 @@ public class AudioRecorder extends Observable  {
         }
     }
 
+    /**
+     * Stop audio playback
+     */
     public void stopPlaying() {
         mPlayer.release();
-        isPlaying = false;
+        prevState = audioState;
+        audioState = 0;
         setChanged();
         notifyObservers();
     }
 
-    public void startRecording() {
+    /**
+     * Start recording audio to file. Input hierarcy: bluetooth, external mic, internal mic
+     * @param name File path relative to app directory
+     */
+    public void startRecording(String name) {
         mRecorder = new MediaRecorder();
-        mFileName = "test.kyle";
-        File audioFile = new File(context.getFilesDir(), mFileName);
+        fileName = name;
+        File audioFile = new File(context.getFilesDir(), fileName);
         mRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT); // default to internal mic, unless external is present
         mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         mRecorder.setOutputFile(audioFile.getAbsolutePath());
@@ -101,37 +128,44 @@ public class AudioRecorder extends Observable  {
         }
 
         mRecorder.start();
-        isRecording = true;
+        prevState = audioState;
+        audioState = 2;
         setChanged();
         notifyObservers();
     }
 
+    /**
+     * Stop audio recording
+     */
     public void stopRecording() {
         mRecorder.stop();
         mRecorder.reset();
-        isRecording = false;
+        prevState = audioState;
+        audioState = 0;
         setChanged();
         notifyObservers();
     }
 
+    /**
+     * Broadcast Receiver for bluetooth hardware information
+     */
     public class btReceiver extends BroadcastReceiver{
         public void onReceive(Context context, Intent intent) {
             int state = intent.getIntExtra(AudioManager.EXTRA_SCO_AUDIO_STATE, -1);
-            Log.d("INFO", "Audio SCO state: " + state);
-
             if (AudioManager.SCO_AUDIO_STATE_CONNECTED == state) {
                 context.unregisterReceiver(this);
             }
         }
     }
 
+    /**
+     * Listener called by system when audio file finishes playing.
+     * Call stopPlaying function
+     */
     class donePlayingListener implements OnCompletionListener{
         public void onCompletion(MediaPlayer m){
-            Log.d("INFO", "Play Completion Listener Called");
             stopPlaying();
         }
     }
 
 }
-
-//<uses-permission android:name="android.permission.RECORD_AUDIO"/>
