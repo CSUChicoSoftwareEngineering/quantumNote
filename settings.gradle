@@ -1,2 +1,1 @@
 include ':ArcMenu',':app'
-include ':ArcMenu'

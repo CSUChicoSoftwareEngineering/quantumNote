@@ -36,7 +36,7 @@ public class AudioRecorder extends Observable  {
         context.registerReceiver(new btReceiver(), new IntentFilter(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED));
         Log.d("INFO", "starting bluetooth");
         btManager.startBluetoothSco();
-    }
+    } //
 
     /**
      * Returns previous playing/recording state

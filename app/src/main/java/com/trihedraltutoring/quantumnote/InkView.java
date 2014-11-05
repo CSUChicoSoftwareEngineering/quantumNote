@@ -142,7 +142,7 @@ public class InkView extends View {
                 Point p1 = point.remove(0);
                 Point p2 = point.remove(0);
                 path.cubicTo(p1.x, p1.y, p2.x, p2.y, x, y);
-                // point now contains only x,y //
+                /// point now contains only x,y ///
                 path.moveTo(x, y);
 
             }
