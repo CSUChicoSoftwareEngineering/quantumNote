@@ -1,54 +1,40 @@
 package com.trihedraltutoring.quantumnote;
 
-import android.app.Activity;
-
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
+import android.os.Handler;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.LayoutInflater;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.support.v4.widget.DrawerLayout;
 import android.view.ViewTreeObserver;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.PopupMenu;
 import android.widget.Toast;
-import android.widget.TextView;
-import android.graphics.Color;
-import android.widget.Toast;
-import android.graphics.Bitmap;
-import android.view.View.OnClickListener;
 
-
-import java.io.File;
-import java.net.URI;
 import com.capricorn.ArcMenu;
 import com.capricorn.RayMenu;
 
+import java.io.File;
+import java.net.URI;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
-public class MyActivityDrawer extends Activity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+public class MyActivityDrawer extends Activity implements Observer,
+        NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     private static final int[] ITEM_DRAWABLES = {R.drawable.ic_launcher, R.drawable.ic_launcher, R.drawable.ic_launcher, R.drawable.ic_launcher, R.drawable.ic_launcher};
     /**
@@ -60,8 +46,12 @@ public class MyActivityDrawer extends Activity
      */
     private CharSequence mTitle;
     InkView inkView;
+    AudioRecorder audio;
+    int playbackIndex = 0;
     private Button pieControl;
     ImageView iv;
+    Handler playbackHandler;
+    List<Sound> sounds;
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
 
@@ -103,6 +93,10 @@ public class MyActivityDrawer extends Activity
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_activity_drawer);
+
+        audio = new AudioRecorder(this);
+        audio.addObserver((Observer) this);
+        sounds = new LinkedList();
 
 //        pieControl = (Button) findViewById(R.id.pieControlbtn);
 
@@ -299,6 +293,60 @@ public class MyActivityDrawer extends Activity
         }
     }
 
+    public void playAll(){
+        Log.d("INFO", "Playing new audio file");
+        if (playbackIndex < sounds.size()) {
+            audio.startPlaying(playbackIndex + ".mp3");
+            inkView.trace(sounds.get(playbackIndex).startTime,
+                    sounds.get(playbackIndex).endTime); // start and length of highlighted section
+            playbackIndex++;
+        }
+        else
+            playbackIndex = 0;
+    }
+
+    @Override
+    /**
+     * Called by AudioRecorder Whenever state variables change.
+     */
+    public void update(Observable observable, Object data) {
+        Button playB = (Button) findViewById(R.id.playButton);
+        Button recordB = (Button) findViewById(R.id.recButton);
+        if (audio.getState() == AudioRecorder.PLAYING) playB.setText("Stop");
+        else if (audio.getState() == AudioRecorder.RECORDING) recordB.setText("Stop");
+        else {
+            playB.setText("Play");
+            recordB.setText("Rec");
+            if (audio.getPrevState() == AudioRecorder.PLAYING){
+                playAll(); // play next audio file
+            }
+        }
+    }
+
+    public void recClicked(View v){
+        if (audio.getState() == AudioRecorder.RECORDING){
+            sounds.get(sounds.size()-1).endTime = System.currentTimeMillis();
+            audio.stopRecording();
+        }
+        else if (audio.getState() == AudioRecorder.STOPPED){
+            audio.startRecording(sounds.size() + ".mp3");
+            sounds.add(new Sound(System.currentTimeMillis()));
+        }
+    }
+
+    /**
+     *
+     * Plays back all audio files associated with note while highlighting text
+     */
+    public void playClicked(View v){
+        if (audio.getState() == AudioRecorder.PLAYING){
+            audio.stopPlaying();
+        }
+        else if (audio.getState() == AudioRecorder.STOPPED){
+            playAll();
+        }
+    }
+
     @Override
     /**
      * Called for all touch events
@@ -316,6 +364,15 @@ public class MyActivityDrawer extends Activity
         }
         //Log.d("INFO", "getVisibility: " + findViewById(R.id.navigation_drawer).getVisibility());
         return super.dispatchTouchEvent(e); // returns whether event was handled
+    }
+
+    private class Sound{
+        public String filePath;
+        public long startTime;
+        public long endTime;
+        public Sound(long t0){
+            startTime = t0;
+        }
     }
 
 
