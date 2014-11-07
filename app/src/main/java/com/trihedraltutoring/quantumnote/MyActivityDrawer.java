@@ -4,6 +4,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.ListActivity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,12 +21,17 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.capricorn.ArcMenu;
 import com.capricorn.RayMenu;
+import com.trihedraltutoring.quantumnote.data.NoteItem;
+import com.trihedraltutoring.quantumnote.data.NotesDataSource;
 
 import java.io.File;
 import java.net.URI;
@@ -33,8 +40,14 @@ import java.util.List;
 import java.util.Observable; //
 import java.util.Observer;
 
-public class MyActivityDrawer extends Activity implements Observer,
+public class MyActivityDrawer extends ListActivity implements Observer,
         NavigationDrawerFragment.NavigationDrawerCallbacks {
+
+    private static final int EDITOR_ACTIVITY_REQUEST = 1001;
+    private static final int MENU_DELETE_ID = 1002;
+    private int currentNoteId;
+    private NotesDataSource datasource;
+    List<NoteItem> notesList;
 
     private static final int[] ITEM_DRAWABLES = {R.drawable.ic_launcher, R.drawable.ic_launcher, R.drawable.ic_launcher, R.drawable.ic_launcher, R.drawable.ic_launcher};
     /**
@@ -86,6 +99,14 @@ public class MyActivityDrawer extends Activity implements Observer,
             iv.setImageBitmap(b);
         }
 
+        if(requestCode == EDITOR_ACTIVITY_REQUEST && resultCode == RESULT_OK) {
+            NoteItem note = new NoteItem();
+            note.setKey(data.getStringExtra("key"));
+            note.setText(data.getStringExtra("text"));
+            datasource.update(note);
+            refreshDisplay();
+        }
+
     };
 
     @Override
@@ -93,6 +114,12 @@ public class MyActivityDrawer extends Activity implements Observer,
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_activity_drawer);
+
+        registerForContextMenu(getListView());
+
+        datasource = new NotesDataSource(this);
+
+        refreshDisplay();
 
         audio = new AudioRecorder(this);
         audio.addObserver((Observer) this);
@@ -159,6 +186,33 @@ public class MyActivityDrawer extends Activity implements Observer,
         });
     }
 
+    private void refreshDisplay() {
+        notesList = datasource.findAll();
+        ArrayAdapter<NoteItem> adapter = new ArrayAdapter<NoteItem>(this, R.layout.list_item_layout, notesList);
+        setListAdapter(adapter);
+
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+        currentNoteId = (int) info.id;
+        menu.add(0, MENU_DELETE_ID, 0, "Delete");
+
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+
+        if (item.getItemId() == MENU_DELETE_ID) {
+            NoteItem note = notesList.get(currentNoteId);
+            datasource.remove(note);
+            refreshDisplay();
+        }
+        return super.onContextItemSelected(item);
+    }
+
     //This sets up the PieMenu
     private void initArcMenu(ArcMenu menu, int[] itemDrawables) {
         final int itemCount = itemDrawables.length;
@@ -209,9 +263,6 @@ public class MyActivityDrawer extends Activity implements Observer,
             case 2:
                 mTitle = getString(R.string.title_section2);
                 break;
-            case 3:
-                mTitle = getString(R.string.title_section3);
-                break;
         }
     }
 
@@ -245,7 +296,29 @@ public class MyActivityDrawer extends Activity implements Observer,
         if (id == R.id.action_settings) {
             return true;
         }
+        if (id == R.id.action_create) {
+            createNote();
+        }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void createNote() {
+        NoteItem note = NoteItem.getNew();
+        Intent intent = new Intent(this, NoteEditorActivity.class);
+        intent.putExtra("key", note.getKey());
+        intent.putExtra("text", note.getText());
+        startActivityForResult(intent, EDITOR_ACTIVITY_REQUEST);
+    }
+
+    @Override
+    protected void onListItemClick(ListView l, View v, int position, long id) {
+
+        NoteItem note = notesList.get(position);
+        Intent intent = new Intent(this, NoteEditorActivity.class);
+        intent.putExtra("key", note.getKey());
+        intent.putExtra("text", note.getText());
+        startActivityForResult(intent, EDITOR_ACTIVITY_REQUEST);
+
     }
 
     /**
