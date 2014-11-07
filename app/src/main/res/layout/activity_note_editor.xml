@@ -1,0 +1,104 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <FrameLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <!--<Button-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="pieControl"-->
+        <!--android:onClick=""-->
+        <!--android:id="@+id/pieControlbtn"-->
+        <!--class="com.trihedraltutoring.quantumnote.PieControl"-->
+        <!--android:layout_gravity="center"-->
+        <!--android:clickable="true"-->
+        <!--android:visibility="gone"/> &lt;!&ndash; Remove this line to show pie button &ndash;&gt;-->
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/camera"
+            android:id="@+id/camera"
+            android:layout_gravity="center_horizontal|bottom"
+            android:clickable="true"
+            android:onClick="openCamera"
+            android:background="#0078ff00" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rec"
+            android:id="@+id/recButton"
+            android:layout_gravity="end|top"
+            android:onClick="recClicked"
+            android:clickable="true" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Play"
+            android:id="@+id/playButton"
+            android:layout_gravity="start|top"
+            android:onClick="playClicked"
+            android:clickable="true" />
+
+        <view
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            class="com.trihedraltutoring.quantumnote.InkView"
+            android:id="@+id/inkView"
+            android:layout_gravity="center" />
+
+        <ImageView
+            android:layout_width="143dp"
+            android:layout_height="143dp"
+            android:id="@+id/imageView1"
+            android:layout_gravity="bottom|right"
+            android:clickable="false"
+            android:focusableInTouchMode="false"
+            android:cropToPadding="false" />
+
+        <com.capricorn.RayMenu
+            android:id="@+id/ray_menu"
+            android:layout_width="fill_parent"
+            android:layout_height="60dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:layout_gravity="right|bottom"/>
+
+        <com.capricorn.ArcMenu
+            android:id="@+id/arc_menu"
+            android:src="@drawable/pie"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|center_vertical"
+            android:paddingRight="0dp"
+            android:focusable="true" />
+
+
+        <EditText
+            android:id="@+id/noteText"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:inputType="textShortMessage">
+
+        </EditText>
+
+        <!--<com.capricorn.ArcMenu-->
+        <!--android:id="@+id/arc_menu_2"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--arc:fromDegrees="@dimen/menuFromDegrees"-->
+        <!--arc:toDegrees="@dimen/menuToDegrees"-->
+        <!--arc:childSize="@dimen/menuChildSize"/>-->
+
+    </FrameLayout>
+
+
+
+</RelativeLayout>

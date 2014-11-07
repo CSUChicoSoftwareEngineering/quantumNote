@@ -26,6 +26,7 @@
             android:name=".OpenCamera"
             android:label="@string/title_activity_open_camera" >
         </activity>
+        <activity android:name=".NoteEditorActivity"/>
     </application>
 
 </manifest>
