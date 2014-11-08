@@ -3,7 +3,7 @@ package com.trihedraltutoring.quantumnote;
 /**
  * Created by kyled_000 on 11/2/2014.
  */
-
+//
 import java.io.File;
 import java.io.IOException;
 import java.util.Observable;
@@ -20,14 +20,14 @@ import android.media.MediaPlayer;
 
 public class AudioRecorder extends Observable  {
 
-    public static int RECORDING = 2;
-    public static int PLAYING = 1;
-    public static int STOPPED = 0;
+    public static final int RECORDING = 2;
+    public static final int PLAYING = 1;
+    public static final int STOPPED = 0;
     private String fileName;
     private MediaRecorder mRecorder;
     private MediaPlayer   mPlayer;
-    int prevState = 0;
-    int audioState = 0;
+    private int prevState = 0;
+    private int audioState = 0;
     Context context;
 
     public AudioRecorder(Context c){
