@@ -48,9 +48,10 @@ public class MyActivityDrawer extends Activity implements Observer,
     InkView inkView;
     AudioRecorder audio;
     int playbackIndex = 0;
+    boolean prevNavVisible = false;
+    MotionEvent prevMotionEvent;
     private Button pieControl;
     ImageView iv;
-    Handler playbackHandler;
     List<Sound> sounds;
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
@@ -97,6 +98,10 @@ public class MyActivityDrawer extends Activity implements Observer,
         audio = new AudioRecorder(this);
         audio.addObserver((Observer) this);
         sounds = new LinkedList();
+        prevMotionEvent = MotionEvent.obtain(0,0,MotionEvent.ACTION_UP,0,0,0);
+        inkView = (InkView) findViewById(R.id.inkView); // get inkView defined in xml
+        //inkView.setColor(128,0,255,0);
+        //inkView.setWidth(50);
 
 //        pieControl = (Button) findViewById(R.id.pieControlbtn);
 
@@ -145,7 +150,6 @@ public class MyActivityDrawer extends Activity implements Observer,
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
-        inkView = (InkView) findViewById(R.id.inkView); // get inkView defined in xml
 
 
         // Create onGlobalLayout to be called after inkView is drawn ///
@@ -222,7 +226,6 @@ public class MyActivityDrawer extends Activity implements Observer,
         actionBar.setTitle(mTitle);
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (!mNavigationDrawerFragment.isDrawerOpen()) {
@@ -297,8 +300,8 @@ public class MyActivityDrawer extends Activity implements Observer,
         Log.d("INFO", "Playing new audio file");
         if (playbackIndex < sounds.size()) {
             audio.startPlaying(playbackIndex + ".mp3");
-            inkView.trace(sounds.get(playbackIndex).startTime,
-                    sounds.get(playbackIndex).endTime); // start and length of highlighted section
+            inkView.dynamicHighlight(sounds.get(playbackIndex).startTime,
+                    sounds.get(playbackIndex).endTime);
             playbackIndex++;
         }
         else
@@ -307,7 +310,7 @@ public class MyActivityDrawer extends Activity implements Observer,
 
     @Override
     /**
-     * Called by AudioRecorder Whenever state variables change.
+     * Called by AudioRecorder whenever state variables change.
      */
     public void update(Observable observable, Object data) {
         Button playB = (Button) findViewById(R.id.playButton);
@@ -334,10 +337,6 @@ public class MyActivityDrawer extends Activity implements Observer,
         }
     }
 
-    /**
-     *
-     * Plays back all audio files associated with note while highlighting text
-     */
     public void playClicked(View v){
         if (audio.getState() == AudioRecorder.PLAYING){
             audio.stopPlaying();
@@ -347,23 +346,48 @@ public class MyActivityDrawer extends Activity implements Observer,
         }
     }
 
+    public void eraseClicked(View v){
+        if (inkView.state == InkView.DRAWING){
+            inkView.setWidth(30);
+            inkView.state = InkView.ERASING;
+        }
+        else {
+            inkView.setWidth(4);
+            inkView.state = InkView.DRAWING;
+        }
+    }
+
     @Override
     /**
      * Called for all touch events
      */
-    public boolean dispatchTouchEvent(MotionEvent e) {
-        float x = e.getX();
-        float y = e.getY();
-        if (findViewById(R.id.navigation_drawer).getVisibility() != View.VISIBLE) {
-        //if (!mNavigationDrawerFragment.isDrawerOpen()){
-            if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                inkView.addStroke(x, y);
-            }
-            inkView.addPoint(x, y);
-            inkView.invalidate();
+    public boolean dispatchTouchEvent(MotionEvent motionEvent) {
+        float x = motionEvent.getX();
+        float y = motionEvent.getY();
+            switch (motionEvent.getAction()){
+                case(MotionEvent.ACTION_DOWN):
+                    if (!mNavigationDrawerFragment.isVisible()) {
+                       inkView.addStroke(x, y);
+                    }
+                break;
+
+                case(MotionEvent.ACTION_UP):
+                    inkView.endStroke();
+                break;
+
+                case(MotionEvent.ACTION_MOVE):
+                    if (!mNavigationDrawerFragment.isVisible()) {
+                        inkView.addPoint(x, y);
+                    }
+                    else if(!prevNavVisible)
+                        inkView.deleteLastStroke();
+
+                break;
+
         }
-        //Log.d("INFO", "getVisibility: " + findViewById(R.id.navigation_drawer).getVisibility());
-        return super.dispatchTouchEvent(e); // returns whether event was handled
+        Log.d("DATA", ""+mNavigationDrawerFragment.isVisible());
+        prevNavVisible = mNavigationDrawerFragment.isVisible();
+        return super.dispatchTouchEvent(motionEvent); // returns whether event was handled
     }
 
     private class Sound{
@@ -374,6 +398,4 @@ public class MyActivityDrawer extends Activity implements Observer,
             startTime = t0;
         }
     }
-
-
 }

@@ -29,48 +29,57 @@
             <!--android:visibility="gone"/> &lt;!&ndash; Remove this line to show pie button &ndash;&gt;-->
 
         <ImageButton
+            android:id="@+id/camera"
+            android:onClick="openCamera"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/camera"
-            android:id="@+id/camera"
             android:layout_gravity="center_horizontal|bottom"
             android:clickable="true"
-            android:onClick="openCamera"
             android:background="#0078ff00" />
 
         <Button
+            android:id="@+id/recButton"
+            android:text="Rec"
+            android:onClick="recClicked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Rec"
-            android:id="@+id/recButton"
             android:layout_gravity="end|top"
-            android:onClick="recClicked"
             android:clickable="true" />
 
         <Button
+            android:id="@+id/playButton"
+            android:text="Play"
+            android:onClick="playClicked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Play"
-            android:id="@+id/playButton"
             android:layout_gravity="start|top"
-            android:onClick="playClicked"
+            android:clickable="true" />
+
+        <Button
+            android:id="@+id/eraseButton"
+            android:text="Erase"
+            android:onClick="eraseClicked"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
             android:clickable="true" />
 
         <view
+            android:id="@+id/inkView"
+            class="com.trihedraltutoring.quantumnote.InkView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            class="com.trihedraltutoring.quantumnote.InkView"
-            android:id="@+id/inkView"
             android:layout_gravity="center" />
 
         <ImageView
+            android:id="@+id/imageView1"
             android:layout_width="143dp"
             android:layout_height="143dp"
-            android:id="@+id/imageView1"
             android:layout_gravity="bottom|right"
-            android:clickable="false"
             android:focusableInTouchMode="false"
-            android:cropToPadding="false" />
+            android:cropToPadding="false"
+            android:clickable="false" />
 
         <com.capricorn.RayMenu
             android:id="@+id/ray_menu"
