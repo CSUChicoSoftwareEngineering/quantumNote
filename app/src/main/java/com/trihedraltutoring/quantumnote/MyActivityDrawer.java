@@ -39,7 +39,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable; //
 import java.util.Observer;
-
+//
 public class MyActivityDrawer extends ListActivity implements Observer,
         NavigationDrawerFragment.NavigationDrawerCallbacks {
 

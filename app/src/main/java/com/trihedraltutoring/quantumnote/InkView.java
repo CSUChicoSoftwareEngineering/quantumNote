@@ -261,7 +261,7 @@ public class InkView extends View {
             if (hi) brush = highlightPaint;
             else brush = paintingBrush;
         }
-
+//
         /**
          * Add point to stroke, add new bezier every 3rd call
          * @param x x coordinate
