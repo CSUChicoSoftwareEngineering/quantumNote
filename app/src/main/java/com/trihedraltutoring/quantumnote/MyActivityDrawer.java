@@ -2,9 +2,13 @@ package com.trihedraltutoring.quantumnote;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.ListActivity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -206,13 +210,39 @@ public class MyActivityDrawer extends ListActivity implements Observer,
 
     }
 
+    public class DeleteDialogFragment extends DialogFragment {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage(R.string.dialog_confirm_delete)
+                    .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // User clicked delete
+                            NoteItem note = notesList.get(currentNoteId);
+                            datasource.remove(note);
+                            refreshDisplay();
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // User cancelled the dialog
+                        }
+                    });
+            // Create the AlertDialog object and return it
+            return builder.create();
+        }
+    }
+
+    public void confirmDelete() {
+        DialogFragment newFragment = new DeleteDialogFragment();
+        newFragment.show(getFragmentManager(), "delete");
+    }
+
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-
         if (item.getItemId() == MENU_DELETE_ID) {
-            NoteItem note = notesList.get(currentNoteId);
-            datasource.remove(note);
-            refreshDisplay();
+            confirmDelete();
         }
         return super.onContextItemSelected(item);
     }
