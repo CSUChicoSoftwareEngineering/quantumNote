@@ -61,24 +61,6 @@
             android:focusableInTouchMode="false"
             android:cropToPadding="false" />
 
-        <com.capricorn.RayMenu
-            android:id="@+id/ray_menu"
-            android:layout_width="fill_parent"
-            android:layout_height="60dp"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:layout_gravity="right|bottom"/>
-
-        <com.capricorn.ArcMenu
-            android:id="@+id/arc_menu"
-            android:src="@drawable/pie"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left|center_vertical"
-            android:paddingRight="0dp"
-            android:focusable="true" />
-
-
         <EditText
             android:id="@+id/noteText"
             android:layout_gravity="center_horizontal"
