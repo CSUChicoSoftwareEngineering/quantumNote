@@ -8,6 +8,7 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.os.Handler;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.util.AttributeSet;
 
@@ -35,7 +36,7 @@ public class InkView extends View {
     public static final int DRAWING_TRI = 3;
     public static final int DRAWING_ELLI = 4;
     public static final int DRAWING_LINE = 5;
-    public static final int ERASING = 6;
+    public static final int ERASING_STROKE = 6;
     public static final int SELECTING = 7;
 
     public InkView(Context context, AttributeSet attributeSet) {
@@ -106,8 +107,6 @@ public class InkView extends View {
      */
     public void addPoint(float x, float y) {
         if (!isInking) return;
-        x -= xOffset;
-        y -= yOffset;
         Stroke s = strokes.get(strokes.size() - 1);
         if (state == DRAWING) {
             s.addPoint(x, y);
@@ -145,13 +144,12 @@ public class InkView extends View {
                 s.moveTo(x0, y0);
                 s.lineTo(x, y);
             }
-            else if (state == ERASING) {
+            else if (state == ERASING_STROKE) {
 
                 Iterator<Stroke> i = strokes.iterator();
                 while (i.hasNext()) {
                     Stroke str = i.next();
                     for (Point pnt : str.points) {
-                        Log.d("DATA", "Checking a point...");
                         if (distance(x, y, pnt) < currentPaint.getStrokeWidth()) {
                             i.remove();
                             break;
@@ -164,22 +162,14 @@ public class InkView extends View {
     }
 
     public void startStroke(float x, float y){
-        Stroke s = new Stroke(x - xOffset, y - yOffset,
+        Stroke s = new Stroke(x, y,
                 System.currentTimeMillis(), currentPaint);
-        s.points.add(new Point(x - xOffset, y - yOffset));
+        s.points.add(new Point(x, y));
         strokes.add(s);
     }
 
     public void endStroke(){
         isInking = false;
-    }
-
-    public void previewShape(float x, float y){
-        //strokes.get(strokes.size()-1).addRect()
-    }
-
-    public void endShape(float x, float y){
-
     }
 
     /**
@@ -284,6 +274,30 @@ public class InkView extends View {
                 moveTo(p.x, p.y);
             }
         }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent motionEvent) {
+        Log.d("DATA", "InkView Registered touch");
+            float x = motionEvent.getX();
+            float y = motionEvent.getY();
+            switch (motionEvent.getAction()){
+                case(MotionEvent.ACTION_DOWN):
+                        addStroke(x, y);
+                    break;
+
+                case(MotionEvent.ACTION_UP):
+                    endStroke();
+                    break;
+
+                case(MotionEvent.ACTION_MOVE):
+                    addPoint(x, y);
+                    break;
+
+            }
+            //prevNavVisible = mNavigationDrawerFragment.isVisible();
+        //return super.onTouchEvent(motionEvent);
+        return true;
     }
 
     /**

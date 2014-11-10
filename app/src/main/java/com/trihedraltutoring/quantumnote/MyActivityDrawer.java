@@ -188,7 +188,6 @@ public class MyActivityDrawer extends ListActivity implements Observer,
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                inkView.setOffset();
                 inkView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
         });
@@ -196,7 +195,8 @@ public class MyActivityDrawer extends ListActivity implements Observer,
 
     private void refreshDisplay() {
         notesList = datasource.findAll();
-        ArrayAdapter<NoteItem> adapter = new ArrayAdapter<NoteItem>(this, R.layout.list_item_layout, notesList);
+        ArrayAdapter<NoteItem> adapter
+                = new ArrayAdapter<NoteItem>(this, R.layout.list_item_layout, notesList);
         setListAdapter(adapter);
 
     }
@@ -282,6 +282,37 @@ public class MyActivityDrawer extends ListActivity implements Observer,
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
+
+        // Temporary solution. position vales hard-coded //
+        if(inkView != null) {
+            switch (position) {
+                case 0:
+                    inkView.setWidth(4);
+                    inkView.state = InkView.DRAWING;
+                    break;
+                case 1:
+                    inkView.setWidth(4);
+                    inkView.state = InkView.DRAWING_TRI;
+                    break;
+                case 2:
+                    inkView.setWidth(4);
+                    inkView.state = InkView.DRAWING_RECT;
+                    break;
+                case 3:
+                    inkView.setWidth(4);
+                    inkView.state = InkView.DRAWING_ELLI;
+                    break;
+                case 4:
+                    inkView.setWidth(4);
+                    inkView.state = InkView.DRAWING_LINE;
+                    break;
+                case 5:
+                    inkView.setWidth(30);
+                    inkView.state = InkView.ERASING_STROKE;
+            }
+        }
+
+
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
@@ -457,52 +488,22 @@ public class MyActivityDrawer extends ListActivity implements Observer,
             playAll();
         }
     }
-
-    public void eraseClicked(View v){
-        if (inkView.state == InkView.DRAWING){
-            inkView.setWidth(30);
-            inkView.state = InkView.ERASING;
-        }
-        else {
-            inkView.setWidth(4);
-            inkView.state = InkView.DRAWING;
-        }
-    }
-
     @Override
     /**
      * Called for all touch events
      */
     public boolean dispatchTouchEvent(MotionEvent motionEvent) {
-        float x = motionEvent.getX();
-        float y = motionEvent.getY();
-            switch (motionEvent.getAction()){
-                case(MotionEvent.ACTION_DOWN):
-                    if (!mNavigationDrawerFragment.isVisible()) {
-                       inkView.addStroke(x, y);
-                    }
-                break;
-
-                case(MotionEvent.ACTION_UP):
-                    inkView.endStroke();
-                break;
-
-                case(MotionEvent.ACTION_MOVE):
-                    if (!mNavigationDrawerFragment.isVisible()) {
-                        inkView.addPoint(x, y);
-                    }
-                    else if(!prevNavVisible)
-                        inkView.deleteLastStroke();
-
-                break;
-
+        if (motionEvent.getAction() == MotionEvent.ACTION_MOVE){
+            if(mNavigationDrawerFragment.isVisible() && !prevNavVisible
+                    && inkView.isInking) {
+                inkView.deleteLastStroke();
+            }
         }
-        Log.d("DATA", ""+mNavigationDrawerFragment.isVisible());
         prevNavVisible = mNavigationDrawerFragment.isVisible();
         return super.dispatchTouchEvent(motionEvent); // returns whether event was handled
     }
 
-    private class Sound{
+    private class Sound {
         public String filePath;
         public long startTime;
         public long endTime;

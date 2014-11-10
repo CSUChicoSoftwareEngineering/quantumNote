@@ -2,11 +2,12 @@
 <resources>
 
     <string name="app_name">quantumNote</string>
-    <string name="title_section1">My Notes</string>
-    <string name="title_section2">Delete Note</string>
-    <string name="title_section3">Erase</string>
-    <string name="title_section4">Erase Stroke</string>
-    <string name="title_section5">Draw</string>
+    <string name="title_section1">Draw</string>
+    <string name="title_section2">Triangle</string>
+    <string name="title_section3">Rectangle</string>
+    <string name="title_section4">Ellipse</string>
+    <string name="title_section5">Line</string>
+    <string name="title_section6">Erase Stroke</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_create">Create</string>
