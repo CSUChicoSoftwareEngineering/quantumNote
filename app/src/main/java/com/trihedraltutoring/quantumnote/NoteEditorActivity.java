@@ -65,7 +65,7 @@ public class NoteEditorActivity extends Activity {
         ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle(note.getText());
+        actionBar.setTitle("quantumNote");
     }
 
     @Override
