@@ -405,9 +405,6 @@ public class MyActivityDrawer extends ListActivity implements Observer,
         inkView.setColor(255, Color.red(color), Color.green(color),  Color.blue(color));
     }
 
-
-
-
     private void createNote() {
         NoteItem note = NoteItem.getNew();
         Intent intent = new Intent(this, NoteEditorActivity.class);
