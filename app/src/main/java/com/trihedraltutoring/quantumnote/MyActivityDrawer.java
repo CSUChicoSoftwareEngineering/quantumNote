@@ -7,6 +7,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.graphics.Color;
 import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,6 +15,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceActivity;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -36,6 +38,10 @@ import com.capricorn.ArcMenu;
 import com.capricorn.RayMenu;
 import com.trihedraltutoring.quantumnote.data.NoteItem;
 import com.trihedraltutoring.quantumnote.data.NotesDataSource;
+
+import com.trihedraltutoring.quantumnote.ColorPickerDialog;
+import com.trihedraltutoring.quantumnote.ColorPickerDialog.OnColorSelectedListener;
+import com.trihedraltutoring.quantumnote.R;
 
 import java.io.File;
 import java.net.URI;
@@ -367,6 +373,7 @@ public class MyActivityDrawer extends ListActivity implements Observer,
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
+            showColorPickerDialogDemo();
             return true;
         }
         if (id == R.id.action_create) {
@@ -374,6 +381,30 @@ public class MyActivityDrawer extends ListActivity implements Observer,
         }
         return super.onOptionsItemSelected(item);
     }
+
+    private void showColorPickerDialogDemo() {
+
+        int initialColor = Color.WHITE;
+
+        ColorPickerDialog colorPickerDialog = new ColorPickerDialog(this, initialColor, new OnColorSelectedListener() {
+
+            @Override
+            public void onColorSelected(int color) {
+                showToast(color);
+            }
+
+        });
+        colorPickerDialog.show();
+
+    }
+
+    private void showToast(int color) {
+        String rgbString = "R: " + Color.red(color) + " B: " + Color.blue(color) + " G: " + Color.green(color);
+        Toast.makeText(this, rgbString, Toast.LENGTH_SHORT).show();
+    }
+
+
+
 
     private void createNote() {
         NoteItem note = NoteItem.getNew();

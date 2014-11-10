@@ -18,5 +18,9 @@
     <string name="dialog_confirm_delete">Confirm delete</string>
     <string name="delete">Delete</string>
     <string name="cancel">Cancel</string>
+    <string name="button_label">OK</string>
 
+
+    <string name="pref_name">Pick a color</string>
+    <string name="pref_summary">DialogPreference with Color Picker.</string>
 </resources>
