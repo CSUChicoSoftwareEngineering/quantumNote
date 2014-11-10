@@ -222,6 +222,7 @@ public class MyActivityDrawer extends ListActivity implements Observer,
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setMessage(R.string.dialog_confirm_delete)
+                    .setTitle(R.string.delete_title)
                     .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             // User clicked delete
@@ -232,7 +233,7 @@ public class MyActivityDrawer extends ListActivity implements Observer,
                     })
                     .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            // User cancelled the dialog
+                            // User clicked cancel, do nothing.
                         }
                     });
             // Create the AlertDialog object and return it

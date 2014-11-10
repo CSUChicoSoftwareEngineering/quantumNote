@@ -15,7 +15,8 @@
     <string name="PieControl">PieControl</string>
     <string name="title_activity_open_camera">OpenCamera</string>
     <string name="hello_world">Hello world!</string>
-    <string name="dialog_confirm_delete">Confirm delete</string>
+    <string name="dialog_confirm_delete">One note will be deleted.</string>
+    <string name="delete_title">Delete?</string>
     <string name="delete">Delete</string>
     <string name="cancel">Cancel</string>
     <string name="button_label">OK</string>
