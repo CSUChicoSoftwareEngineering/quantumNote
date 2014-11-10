@@ -66,10 +66,9 @@
             android:layout_gravity="center_horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:singleLine="true"
-            android:inputType="textShortMessage">
-
-        </EditText>
+            android:singleLine="false"
+            android:gravity="top"
+            android:inputType="textMultiLine" />
 
         <!--<com.capricorn.ArcMenu-->
         <!--android:id="@+id/arc_menu_2"-->

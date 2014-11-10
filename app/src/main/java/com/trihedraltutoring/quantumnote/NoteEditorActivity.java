@@ -22,8 +22,16 @@ public class NoteEditorActivity extends Activity {
         note.setText(intent.getStringExtra("text"));
 
         EditText et = (EditText) findViewById(R.id.noteText);
-        et.setText(note.getText());
-        et.setSelection(note.getText().length());
+
+        if(note.getText().length() == 0)
+        {
+            et.setText("New Note");
+            et.setSelection(et.length());
+        }
+        else {
+            et.setText(note.getText());
+            et.setSelection(note.getText().length());
+        }
     }
 
     private void saveAndFinish() {
