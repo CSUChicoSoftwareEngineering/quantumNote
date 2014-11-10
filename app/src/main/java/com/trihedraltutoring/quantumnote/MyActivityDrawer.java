@@ -402,6 +402,7 @@ public class MyActivityDrawer extends ListActivity implements Observer,
     private void showToast(int color) {
         String rgbString = "R: " + Color.red(color) + " B: " + Color.blue(color) + " G: " + Color.green(color);
         Toast.makeText(this, rgbString, Toast.LENGTH_SHORT).show();
+        inkView.setColor(255, Color.red(color), Color.green(color),  Color.blue(color));
     }
 
 
