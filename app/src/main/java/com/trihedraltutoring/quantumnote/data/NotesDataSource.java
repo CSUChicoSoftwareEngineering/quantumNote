@@ -24,8 +24,6 @@ public class NotesDataSource {
 
         SortedSet<String> keys = new TreeSet<String>(notesMap.keySet());
 
-
-
         List<NoteItem> noteList = new ArrayList<NoteItem>();
         for (String key : keys) {
             NoteItem note = new NoteItem();

@@ -53,12 +53,6 @@ import java.util.Observer;
 public class NoteEditorActivity extends ListActivity implements Observer,
         NavigationDrawerFragment.NavigationDrawerCallbacks {
 
-    private static final int EDITOR_ACTIVITY_REQUEST = 1001;
-    private static final int MENU_DELETE_ID = 1002;
-    private int currentNoteId;
-    private NotesDataSource datasource;
-    List<NoteItem> notesList;
-
     private static final int[] ITEM_DRAWABLES = {R.drawable.ic_launcher, R.drawable.ic_launcher, R.drawable.ic_launcher, R.drawable.ic_launcher, R.drawable.ic_launcher};
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -110,15 +104,6 @@ public class NoteEditorActivity extends ListActivity implements Observer,
             iv = (ImageView) findViewById(R.id.imageView1);
             iv.setImageBitmap(b);
         }
-
-        if(requestCode == EDITOR_ACTIVITY_REQUEST && resultCode == RESULT_OK) {
-            NoteItem note = new NoteItem();
-            note.setKey(data.getStringExtra("key"));
-            note.setText(data.getStringExtra("text"));
-            datasource.update(note);
-            refreshDisplay();
-        }
-
     }
 **/
     @Override
@@ -138,7 +123,6 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         sounds = new LinkedList();
         prevMotionEvent = MotionEvent.obtain(0,0,MotionEvent.ACTION_UP,0,0,0);
         inkView = (InkView) findViewById(R.id.inkView); // get inkView defined in xml
-        datasource = new NotesDataSource(this);
         ArcMenu arcMenu = (ArcMenu) findViewById(R.id.arc_menu);
         initArcMenu(arcMenu, ITEM_DRAWABLES);
         RayMenu rayMenu = (RayMenu) findViewById(R.id.ray_menu);
@@ -153,10 +137,6 @@ public class NoteEditorActivity extends ListActivity implements Observer,
             et.setText(note.getText());
             et.setSelection(note.getText().length());
         }
-
-
-        registerForContextMenu(getListView());
-        //refreshDisplay();
 
         final int itemCount = ITEM_DRAWABLES.length;
         for(int i = 0; i < itemCount; i++) {
@@ -216,15 +196,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
     public void onBackPressed() {
         saveAndFinish();
     }
-/**
-    private void refreshDisplay() {
-        notesList = datasource.findAll();
-        ArrayAdapter<NoteItem> adapter
-                = new ArrayAdapter<NoteItem>(this, R.layout.list_item_layout, notesList);
-        setListAdapter(adapter);
 
-    }
-**/
     private void saveAndFinish() {
         EditText et = (EditText) findViewById(R.id.noteText);
         String noteText = et.getText().toString();
@@ -235,53 +207,6 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         setResult(RESULT_OK, intent);
         finish();
 
-    }
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-        currentNoteId = (int) info.id;
-        menu.add(0, MENU_DELETE_ID, 0, "Delete");
-
-    }
-
-    public class DeleteDialogFragment extends DialogFragment {
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setMessage(R.string.dialog_confirm_delete)
-                    .setTitle(R.string.delete_title)
-                    .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // User clicked delete
-                            NoteItem note = notesList.get(currentNoteId);
-                            datasource.remove(note);
-                            //refreshDisplay();
-                        }
-                    })
-                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // User clicked cancel, do nothing.
-                        }
-                    });
-            // Create the AlertDialog object and return it
-            return builder.create();
-        }
-    }
-
-    public void confirmDelete() {
-        DialogFragment newFragment = new DeleteDialogFragment();
-        newFragment.show(getFragmentManager(), "delete");
-    }
-
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        if (item.getItemId() == MENU_DELETE_ID) {
-            confirmDelete();
-        }
-        return super.onContextItemSelected(item);
     }
 
     //This sets up the PieMenu
@@ -386,30 +311,22 @@ public class NoteEditorActivity extends ListActivity implements Observer,
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (!mNavigationDrawerFragment.isDrawerOpen()) {
-            // Only show items in the action bar relevant to this screen
-            // if the drawer is not showing. Otherwise, let the drawer
-            // decide what to show in the action bar.
-            getMenuInflater().inflate(R.menu.my_activity_drawer, menu); /////////////////////////////////////????
+
+            getMenuInflater().inflate(R.menu.my_activity_drawer, menu);
             restoreActionBar();
-            return true;
-        }
+
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             showColorPickerDialogDemo();
             return true;
         }
-        if (id == R.id.action_create) {
-            createNote();
-        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -433,25 +350,6 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         String rgbString = "R: " + Color.red(color) + " B: " + Color.blue(color) + " G: " + Color.green(color);
         Toast.makeText(this, rgbString, Toast.LENGTH_SHORT).show();
         inkView.setColor(255, Color.red(color), Color.green(color), Color.blue(color));
-    }
-
-    private void createNote() {
-        NoteItem note = NoteItem.getNew();
-        Intent intent = new Intent(this, NoteEditorActivity.class);
-        intent.putExtra("key", note.getKey());
-        intent.putExtra("text", note.getText());
-        startActivityForResult(intent, EDITOR_ACTIVITY_REQUEST);
-    }
-
-    @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
-
-        NoteItem note = notesList.get(position);
-        Intent intent = new Intent(this, NoteEditorActivity.class);
-        intent.putExtra("key", note.getKey());
-        intent.putExtra("text", note.getText());
-        startActivityForResult(intent, EDITOR_ACTIVITY_REQUEST);
-
     }
 
     /**

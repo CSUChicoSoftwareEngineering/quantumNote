@@ -46,6 +46,19 @@ public class MyActivityDrawer extends ListActivity {
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == EDITOR_ACTIVITY_REQUEST && resultCode == RESULT_OK) {
+            NoteItem note = new NoteItem();
+            note.setKey(data.getStringExtra("key"));
+            note.setText(data.getStringExtra("text"));
+            datasource.update(note);
+            refreshDisplay();
+        }
+    }
+
     private void refreshDisplay() {
         notesList = datasource.findAll();
         ArrayAdapter<NoteItem> adapter
@@ -145,7 +158,10 @@ public class MyActivityDrawer extends ListActivity {
             return true;
         }
         if (id == R.id.action_create) {
+            Toast.makeText(this, "New note created.", Toast.LENGTH_SHORT).show();
             createNote();
+            return true;
+
         }
         return super.onOptionsItemSelected(item);
     }
