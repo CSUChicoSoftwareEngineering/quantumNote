@@ -16,79 +16,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
-        <!--<Button-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="pieControl"-->
-            <!--android:onClick=""-->
-            <!--android:id="@+id/pieControlbtn"-->
-            <!--class="com.trihedraltutoring.quantumnote.PieControl"-->
-            <!--android:layout_gravity="center"-->
-            <!--android:clickable="true"-->
-            <!--android:visibility="gone"/> &lt;!&ndash; Remove this line to show pie button &ndash;&gt;-->
-
-        <!--<ImageButton
-            android:id="@+id/camera"
-            android:onClick="openCamera"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/camera"
-            android:layout_gravity="center_horizontal|bottom"
-            android:clickable="true"
-            android:background="#0078ff00" />
-
-        <Button
-            android:id="@+id/recButton"
-            android:text="Rec"
-            android:onClick="recClicked"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|top"
-            android:clickable="true" />
-
-        <Button
-            android:id="@+id/playButton"
-            android:text="Play"
-            android:onClick="playClicked"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start|top"
-            android:clickable="true" />-->
-
-        <view
-            android:id="@+id/inkView"
-            class="com.trihedraltutoring.quantumnote.InkView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center" />
-
-        <ImageView
-            android:id="@+id/imageView1"
-            android:layout_width="143dp"
-            android:layout_height="143dp"
-            android:layout_gravity="bottom|right"
-            android:focusableInTouchMode="false"
-            android:cropToPadding="false"
-            android:clickable="false" />
-
-        <com.capricorn.RayMenu
-            android:id="@+id/ray_menu"
-            android:layout_width="fill_parent"
-            android:layout_height="60dp"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:layout_gravity="right|bottom"/>
-
-        <com.capricorn.ArcMenu
-            android:id="@+id/arc_menu"
-            android:src="@drawable/pie"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left|center_vertical"
-            android:paddingRight="0dp"
-            android:visibility="gone"/>             <!-- Remove this line to show pie button -->
-            android:focusable="true" />
-
         <ListView
             android:id="@android:id/list"
             android:layout_width="match_parent"
@@ -112,13 +39,13 @@
          If you're not building against API 17 or higher, use
          android:layout_gravity="left" instead. -->
     <!-- The drawer is given a fixed width in dp and extends the full height of
-         the container. -->
+         the container. --><!--
     <fragment android:id="@+id/navigation_drawer"
         android:layout_width="@dimen/navigation_drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:name="com.trihedraltutoring.quantumnote.NavigationDrawerFragment"
-        tools:layout="@layout/fragment_navigation_drawer" />
+        tools:layout="@layout/fragment_navigation_drawer" />-->
 
 
 </android.support.v4.widget.DrawerLayout>
