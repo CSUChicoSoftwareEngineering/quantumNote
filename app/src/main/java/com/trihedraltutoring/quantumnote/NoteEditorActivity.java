@@ -16,6 +16,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceActivity;
+import android.provider.MediaStore;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -155,8 +156,12 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                         Toast.makeText(NoteEditorActivity.this, "Forward",
                                 Toast.LENGTH_SHORT).show();
                     } else if (position == 2) {
-                        Toast.makeText(NoteEditorActivity.this, "Camera",
-                                Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(NoteEditorActivity.this, "Camera",
+                                //Toast.LENGTH_SHORT).show();
+                        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                        }
                     } else if (position == 3) {
                         Toast.makeText(NoteEditorActivity.this, "Record",
                                 Toast.LENGTH_SHORT).show();
