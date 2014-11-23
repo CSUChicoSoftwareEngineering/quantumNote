@@ -81,21 +81,29 @@
             android:focusable="true"
             android:visibility="gone"/>             <!-- Remove this line to show pie button -->
 
-
         <ListView
             android:id="@android:id/list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="left|top" />
 
-        <EditText
-            android:id="@+id/noteText"
-            android:layout_gravity="center_horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:singleLine="false"
-            android:gravity="top"
-            android:inputType="textMultiLine" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <EditText
+                android:id="@+id/noteText"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:ems="10"
+                android:singleLine="false"
+                android:gravity="top"
+                android:inputType="textMultiLine">
+
+                <requestFocus />
+             </EditText>
+
+        </RelativeLayout>
 
         <!--<com.capricorn.ArcMenu-->
         <!--android:id="@+id/arc_menu_2"-->
@@ -104,7 +112,6 @@
         <!--arc:fromDegrees="@dimen/menuFromDegrees"-->
         <!--arc:toDegrees="@dimen/menuToDegrees"-->
         <!--arc:childSize="@dimen/menuChildSize"/>-->
-
 
     </FrameLayout>
 

@@ -115,10 +115,6 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         setContentView(R.layout.activity_note_editor);
 
         // Initializations //
-        Intent intent = this.getIntent();
-        note = new NoteItem();
-        note.setKey(intent.getStringExtra("key"));
-        note.setText(intent.getStringExtra("text"));
         audio = new AudioRecorder(this);
         audio.addObserver((Observer) this);
         sounds = new LinkedList();
@@ -127,17 +123,14 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         ArcMenu arcMenu = (ArcMenu) findViewById(R.id.arc_menu);
         initArcMenu(arcMenu, ITEM_DRAWABLES);
         RayMenu rayMenu = (RayMenu) findViewById(R.id.ray_menu);
+        Intent intent = this.getIntent();
+        note = new NoteItem();
+        note.setKey(intent.getStringExtra("key"));
+        note.setText(intent.getStringExtra("text"));
 
         EditText et = (EditText) findViewById(R.id.noteText);
-        if(note.getText().length() == 0)
-        {
-            et.setText("New Note");
-            et.setSelection(et.length());
-        }
-        else {
-            et.setText(note.getText());
-            et.setSelection(note.getText().length());
-        }
+        et.setText(note.getText());
+        et.setSelection(note.getText().length());
 
         final int itemCount = ITEM_DRAWABLES.length;
         for(int i = 0; i < itemCount; i++) {

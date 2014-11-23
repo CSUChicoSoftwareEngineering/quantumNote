@@ -176,13 +176,11 @@ public class MyActivityDrawer extends ListActivity {
 
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-
         NoteItem note = notesList.get(position);
         Intent intent = new Intent(this, NoteEditorActivity.class);
         intent.putExtra("key", note.getKey());
         intent.putExtra("text", note.getText());
         startActivityForResult(intent, EDITOR_ACTIVITY_REQUEST);
-
     }
 
     /**
