@@ -3,11 +3,12 @@
 
     <string name="app_name">quantumNote</string>
     <string name="title_section1">Draw</string>
-    <string name="title_section2">Triangle</string>
-    <string name="title_section3">Rectangle</string>
-    <string name="title_section4">Ellipse</string>
-    <string name="title_section5">Line</string>
-    <string name="title_section6">Erase Stroke</string>
+    <string name="title_section2">Type</string>
+    <string name="title_section3">Triangle</string>
+    <string name="title_section4">Rectangle</string>
+    <string name="title_section5">Ellipse</string>
+    <string name="title_section6">Line</string>
+    <string name="title_section7">Erase Stroke</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_create">Create</string>

@@ -28,33 +28,6 @@
             android:background="#0078ff00" />
 -->
 
-        <view
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            class="com.trihedraltutoring.quantumnote.InkView"
-            android:id="@+id/inkView"
-            android:layout_gravity="center" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Rec"
-            android:id="@+id/recButton"
-            android:layout_gravity="end|top"
-            android:onClick="recClicked"
-            android:clickable="true"
-            android:visibility="gone" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Play"
-            android:id="@+id/playButton"
-            android:layout_gravity="start|top"
-            android:onClick="playClicked"
-            android:clickable="true"
-            android:visibility="gone" />
-
         <ImageView
             android:layout_width="143dp"
             android:layout_height="143dp"
@@ -63,6 +36,39 @@
             android:clickable="false"
             android:focusableInTouchMode="false"
             android:cropToPadding="false" />
+
+        <ListView
+            android:id="@android:id/list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|top" />
+
+        <!-- I don't think we need this RelativeLayout around EditText? -Love, Kyle -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <view
+                class="com.trihedraltutoring.quantumnote.NoteText"
+                android:id="@+id/noteText"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:ems="10"
+                android:singleLine="false"
+                android:gravity="top"
+                android:inputType="textMultiLine">
+
+                <requestFocus />
+             </view>
+
+        </RelativeLayout>
+
+        <view
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            class="com.trihedraltutoring.quantumnote.InkView"
+            android:id="@+id/inkView"
+            android:layout_gravity="center" />
 
         <com.capricorn.RayMenu
             android:id="@+id/ray_menu"
@@ -82,29 +88,23 @@
             android:focusable="true"
             android:visibility="gone"/>             <!-- Remove this line to show pie button -->
 
-        <ListView
-            android:id="@android:id/list"
-            android:layout_width="match_parent"
+        <Button
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="left|top" />
+            android:text="Rec"
+            android:id="@+id/recButton"
+            android:layout_gravity="end|top"
+            android:onClick="recClicked"
+            android:clickable="true"/>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <EditText
-                android:id="@+id/noteText"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:ems="10"
-                android:singleLine="false"
-                android:gravity="top"
-                android:inputType="textMultiLine">
-
-                <requestFocus />
-             </EditText>
-
-        </RelativeLayout>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Play"
+            android:id="@+id/playButton"
+            android:layout_gravity="end|bottom"
+            android:onClick="playClicked"
+            android:clickable="true"/>
 
         <!--<com.capricorn.ArcMenu-->
         <!--android:id="@+id/arc_menu_2"-->

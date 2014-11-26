@@ -31,7 +31,6 @@ import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -70,6 +69,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
      */
     private CharSequence mTitle;
     InkView inkView;
+    NoteText noteText;
     private NoteItem note;
     AudioRecorder audio;
     int playbackIndex = 0;
@@ -137,6 +137,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         sounds = new LinkedList();
         prevMotionEvent = MotionEvent.obtain(0,0,MotionEvent.ACTION_UP,0,0,0);
         inkView = (InkView) findViewById(R.id.inkView); // get inkView defined in xml
+        noteText = (NoteText) findViewById(R.id.noteText);
         ArcMenu arcMenu = (ArcMenu) findViewById(R.id.arc_menu);
         initArcMenu(arcMenu, ITEM_DRAWABLES);
         RayMenu rayMenu = (RayMenu) findViewById(R.id.ray_menu);
@@ -160,9 +161,8 @@ public class NoteEditorActivity extends ListActivity implements Observer,
             Log.e("ERROR", "Error loading sounds " + e);
         }
 
-        EditText et = (EditText) findViewById(R.id.noteText);
-        et.setText(note.getText());
-        et.setSelection(note.getText().length());
+        noteText.setText(note.getText());
+        noteText.setSelection(note.getText().length());
 
         final int itemCount = ITEM_DRAWABLES.length;
         for(int i = 0; i < itemCount; i++) {
@@ -225,8 +225,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
     }
 
     private void saveAndFinish() {
-        EditText et = (EditText) findViewById(R.id.noteText);
-        String noteText = et.getText().toString();
+        String textStr = noteText.getText().toString();
 
         // Serialize inkview //
         inkView.serialize(new File(noteRoot, "inkView"));
@@ -248,7 +247,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
 
         Intent intent = new Intent();
         intent.putExtra("key", note.getKey());
-        intent.putExtra("text", noteText);
+        intent.putExtra("text", textStr);
         setResult(RESULT_OK, intent);
         finish();
 
@@ -298,22 +297,25 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                     inkView.state = InkView.DRAWING;
                     break;
                 case 1:
-                    inkView.setWidth(4);
-                    inkView.state = InkView.DRAWING_TRI;
+                    inkView.state = InkView.INACTIVE;
                     break;
                 case 2:
                     inkView.setWidth(4);
-                    inkView.state = InkView.DRAWING_RECT;
+                    inkView.state = InkView.DRAWING_TRI;
                     break;
                 case 3:
                     inkView.setWidth(4);
-                    inkView.state = InkView.DRAWING_ELLI;
+                    inkView.state = InkView.DRAWING_RECT;
                     break;
                 case 4:
                     inkView.setWidth(4);
-                    inkView.state = InkView.DRAWING_LINE;
+                    inkView.state = InkView.DRAWING_ELLI;
                     break;
                 case 5:
+                    inkView.setWidth(4);
+                    inkView.state = InkView.DRAWING_LINE;
+                    break;
+                case 6:
                     inkView.setWidth(30);
                     inkView.state = InkView.ERASING_STROKE;
             }
@@ -500,15 +502,19 @@ public class NoteEditorActivity extends ListActivity implements Observer,
      */
     @Override
     public boolean dispatchTouchEvent(MotionEvent motionEvent) {
+        if (inkView.state == inkView.INACTIVE){
+            noteText.dispatchTouchEvent(motionEvent);
+        }
         if (motionEvent.getAction() == MotionEvent.ACTION_MOVE){
             // hack to prevent drawing when opening Nav frame //
             if(mNavigationDrawerFragment.isVisible() && !prevNavVisible
-                    && inkView.isInking) { // not using accessor method; recommended by Android
+                    && inkView.isInking) { // not using accessor method (recommended by Android)
                 inkView.deleteLastStroke();
                 inkView.invalidate();
             }
         }
         prevNavVisible = mNavigationDrawerFragment.isVisible();
+
         return super.dispatchTouchEvent(motionEvent); // returns whether event was handled
     }
 

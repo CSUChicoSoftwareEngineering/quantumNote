@@ -41,6 +41,7 @@ public class InkView extends View {
     public int state = 1;
     transient Context context;
     private static final int STROKE_ATTRIBUTES = 3; // for serialization extensibility
+    public static final int INACTIVE = 0;
     public static final int DRAWING = 1;
     public static final int DRAWING_RECT = 2;
     public static final int DRAWING_TRI = 3;
@@ -302,8 +303,10 @@ public class InkView extends View {
     }
 
     public void deleteLastStroke(){
-        if (strokes.size()>0) {
-            strokes.remove(strokes.size() - 1);
+        int size = strokes.size();
+        Stroke stroke = strokes.get( strokes.size()-1 );
+        if (size > 0 && stroke.points.get(0).x < 50 && state != INACTIVE) {
+            strokes.remove( strokes.size()-1 );
         }
     }
 
@@ -373,6 +376,8 @@ public class InkView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
+        if (state == INACTIVE) return true;
+
             float x = motionEvent.getX();
             float y = motionEvent.getY();
             switch (motionEvent.getAction()){
@@ -389,7 +394,6 @@ public class InkView extends View {
                     break;
 
             }
-            //prevNavVisible = mNavigationDrawerFragment.isVisible();
         //return super.onTouchEvent(motionEvent);
         return true;
     }
