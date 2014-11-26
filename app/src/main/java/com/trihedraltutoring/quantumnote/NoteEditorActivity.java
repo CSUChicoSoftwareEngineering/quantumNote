@@ -45,6 +45,12 @@ import com.trihedraltutoring.quantumnote.ColorPickerDialog.OnColorSelectedListen
 import com.trihedraltutoring.quantumnote.R;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
@@ -73,6 +79,9 @@ public class NoteEditorActivity extends ListActivity implements Observer,
     ImageView iv;
     List<Sound> sounds;
     static final int REQUEST_IMAGE_CAPTURE = 1;
+    File noteRoot;
+    File soundsDir;
+
 
 
     public void openCamera(View view) {
@@ -93,7 +102,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
 //        }
 
     }
-/**
+    /**
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -106,7 +115,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
             iv.setImageBitmap(b);
         }
     }
-**/
+    **/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -115,6 +124,14 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         setContentView(R.layout.activity_note_editor);
 
         // Initializations //
+        Intent intent = this.getIntent();
+        note = new NoteItem();
+        note.setKey(intent.getStringExtra("key"));
+        note.setText(intent.getStringExtra("text"));
+        noteRoot = new File(this.getFilesDir(), note.getKey());
+        noteRoot.mkdirs();
+        soundsDir = new File(noteRoot, "Sounds");
+        soundsDir.mkdirs();
         audio = new AudioRecorder(this);
         audio.addObserver((Observer) this);
         sounds = new LinkedList();
@@ -123,10 +140,25 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         ArcMenu arcMenu = (ArcMenu) findViewById(R.id.arc_menu);
         initArcMenu(arcMenu, ITEM_DRAWABLES);
         RayMenu rayMenu = (RayMenu) findViewById(R.id.ray_menu);
-        Intent intent = this.getIntent();
-        note = new NoteItem();
-        note.setKey(intent.getStringExtra("key"));
-        note.setText(intent.getStringExtra("text"));
+
+        // Deserialize inkView //
+        inkView.deserialize(new File(noteRoot, "inkView"));
+
+        // Deserialize sounds //
+        try {
+            File file = new File(soundsDir, "data");
+            FileInputStream fileIn = new FileInputStream(file.getAbsolutePath());
+            ObjectInputStream stream = new ObjectInputStream(fileIn);
+            try {
+                sounds = (List<Sound>)stream.readObject();
+            } catch (ClassNotFoundException e) {
+                Log.e("ERROR", e.getMessage());
+            }
+            stream.close();
+        }
+        catch(IOException e) {
+            Log.e("ERROR", "Error loading sounds " + e);
+        }
 
         EditText et = (EditText) findViewById(R.id.noteText);
         et.setText(note.getText());
@@ -165,20 +197,17 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                 }
             });
         }
-        Log.d("DATA", "4!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
 
-        Log.d("DATA", "5!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
 
-        Log.d("DATA", "6!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
         // Create onGlobalLayout to be called after inkView is drawn ///
         ViewTreeObserver vto = inkView.getViewTreeObserver();
@@ -198,6 +227,24 @@ public class NoteEditorActivity extends ListActivity implements Observer,
     private void saveAndFinish() {
         EditText et = (EditText) findViewById(R.id.noteText);
         String noteText = et.getText().toString();
+
+        // Serialize inkview //
+        inkView.serialize(new File(noteRoot, "inkView"));
+
+        // Serialize sounds //
+        try {
+            File file = new File(soundsDir, "data");
+            FileOutputStream fileOut = new FileOutputStream(file);
+            ObjectOutputStream stream = new ObjectOutputStream(fileOut);
+
+            stream.writeObject(sounds);
+
+            stream.flush();
+            stream.close();
+        }
+        catch(IOException e) {
+            Log.e("ERROR", "Error saving sounds: " + e);
+        }
 
         Intent intent = new Intent();
         intent.putExtra("key", note.getKey());
@@ -398,8 +445,9 @@ public class NoteEditorActivity extends ListActivity implements Observer,
     public void playAll(){
         Log.d("INFO", "Playing new audio file");
         if (playbackIndex < sounds.size()) {
-            audio.startPlaying(playbackIndex + ".mp3");
-            inkView.dynamicHighlight(sounds.get(playbackIndex).startTime,
+            File file = new File(soundsDir, playbackIndex + ".mp3");
+            audio.startPlaying(file);
+            inkView.startDynamicHighlighting(sounds.get(playbackIndex).startTime,
                     sounds.get(playbackIndex).endTime);
             playbackIndex++;
         }
@@ -407,10 +455,10 @@ public class NoteEditorActivity extends ListActivity implements Observer,
             playbackIndex = 0;
     }
 
-    @Override
     /**
      * Called by AudioRecorder whenever state variables change.
      */
+    @Override
     public void update(Observable observable, Object data) {
         Button playB = (Button) findViewById(R.id.playButton);
         Button recordB = (Button) findViewById(R.id.recButton);
@@ -431,7 +479,8 @@ public class NoteEditorActivity extends ListActivity implements Observer,
             audio.stopRecording();
         }
         else if (audio.getState() == AudioRecorder.STOPPED){
-            audio.startRecording(sounds.size() + ".mp3");
+            File file = new File(soundsDir, sounds.size() + ".mp3");
+            audio.startRecording(file);
             sounds.add(new Sound(System.currentTimeMillis()));
         }
     }
@@ -439,28 +488,32 @@ public class NoteEditorActivity extends ListActivity implements Observer,
     public void playClicked(View v){
         if (audio.getState() == AudioRecorder.PLAYING){
             audio.stopPlaying();
+            inkView.stopDynamicHighlighting();
         }
         else if (audio.getState() == AudioRecorder.STOPPED){
             playAll();
         }
     }
-    @Override
+
     /**
      * Called for all touch events
      */
+    @Override
     public boolean dispatchTouchEvent(MotionEvent motionEvent) {
         if (motionEvent.getAction() == MotionEvent.ACTION_MOVE){
+            // hack to prevent drawing when opening Nav frame //
             if(mNavigationDrawerFragment.isVisible() && !prevNavVisible
-                    && inkView.isInking) {
+                    && inkView.isInking) { // not using accessor method; recommended by Android
                 inkView.deleteLastStroke();
+                inkView.invalidate();
             }
         }
         prevNavVisible = mNavigationDrawerFragment.isVisible();
         return super.dispatchTouchEvent(motionEvent); // returns whether event was handled
     }
 
-    private class Sound {
-        public String filePath;
+    private static class Sound implements Serializable{
+        final long serialVersionUID = 1L;
         public long startTime;
         public long endTime;
         public Sound(long t0){

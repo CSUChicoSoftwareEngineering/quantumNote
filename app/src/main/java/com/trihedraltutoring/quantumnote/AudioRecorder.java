@@ -23,7 +23,6 @@ public class AudioRecorder extends Observable  {
     public static final int RECORDING = 2;
     public static final int PLAYING = 1;
     public static final int STOPPED = 0;
-    private String fileName;
     private MediaRecorder mRecorder;
     private MediaPlayer   mPlayer;
     private int prevState = 0;
@@ -70,12 +69,10 @@ public class AudioRecorder extends Observable  {
 
     /**
      * Play audio file
-     * @param name File path relative to app directory
+     * @param audioFile File to play
      */
-    public void startPlaying(String name) {
+    public void startPlaying(File audioFile) {
         mPlayer = new MediaPlayer();
-        fileName = name;
-        File audioFile = new File(context.getFilesDir(), fileName);
         try {
             mPlayer.setOnCompletionListener(new donePlayingListener());
         } catch(NullPointerException e){
@@ -110,12 +107,10 @@ public class AudioRecorder extends Observable  {
 
     /**
      * Start recording audio to file. Input hierarcy: bluetooth, external mic, internal mic
-     * @param name File path relative to app directory
+     * @param audioFile File to record to
      */
-    public void startRecording(String name) {
+    public void startRecording(File audioFile) {
         mRecorder = new MediaRecorder();
-        fileName = name;
-        File audioFile = new File(context.getFilesDir(), fileName);
         mRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT); // default to internal mic, unless external is present
         mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         mRecorder.setOutputFile(audioFile.getAbsolutePath());

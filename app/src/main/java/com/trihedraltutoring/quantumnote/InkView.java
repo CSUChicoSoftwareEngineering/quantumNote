@@ -12,6 +12,14 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.util.AttributeSet;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Iterator;
@@ -26,11 +34,13 @@ public class InkView extends View {
     private Paint highlightPaint;
     private float xOffset, yOffset;
     private long markTf;
-    private Handler highLightHandler;
     private int litStroke;
-    private float curvature = 2;
-    public boolean isInking = false;
+    private Handler highLightHandler;
+    public boolean isInking = false; // public for frequent external access (recommended by Android)
+    private boolean dynamicHighlighting = false;
     public int state = 1;
+    transient Context context;
+    private static final int STROKE_ATTRIBUTES = 3; // for serialization extensibility
     public static final int DRAWING = 1;
     public static final int DRAWING_RECT = 2;
     public static final int DRAWING_TRI = 3;
@@ -39,8 +49,9 @@ public class InkView extends View {
     public static final int ERASING_STROKE = 6;
     public static final int SELECTING = 7;
 
-    public InkView(Context context, AttributeSet attributeSet) {
-        super(context, attributeSet);
+    public InkView(Context c, AttributeSet attributeSet) {
+        super(c, attributeSet);
+        context = c;
         strokes = new LinkedList();
         highLightHandler = new Handler();
         // setup default paint objects //
@@ -54,10 +65,10 @@ public class InkView extends View {
         highlightPaint.setStrokeWidth(8);
     }
 
-    @Override
     /**
      * Called by system to draw all shapes
      */
+    @Override
     public void onDraw(Canvas canvas) {
         for(Stroke s : strokes) {
             canvas.drawPath(s, s.brush);
@@ -95,9 +106,20 @@ public class InkView extends View {
      * @param x x coordinate of first point in stroke
      * @param y y coordinate of first point in stroke
      */
-    public void addStroke(float x, float y) {
+    private void startStroke(float x, float y, long t){
         isInking = true;
-        startStroke(x, y);
+        Stroke s = new Stroke(x, y, t, currentPaint, highlightPaint);
+        s.type = state;
+        strokes.add(s);
+    }
+
+    private void endStroke(float x, float y){
+        if (state == DRAWING)
+            strokes.get( strokes.size()-1 ).addPoint(x, y);
+        else
+            drawShape(x, y);
+            saveShape(x, y);
+        isInking = false;
     }
 
     /**
@@ -105,71 +127,70 @@ public class InkView extends View {
      * @param x x coordinate
      * @param y y coordinate
      */
-    public void addPoint(float x, float y) {
+    private void addPoint(float x, float y) {
         if (!isInking) return;
-        Stroke s = strokes.get(strokes.size() - 1);
+        Stroke s = strokes.get( strokes.size()-1 );
         if (state == DRAWING) {
             s.addPoint(x, y);
         }
-        else {
-            float x0 = s.points.get(0).x;
-            float y0 = s.points.get(0).y;
-            if (state == DRAWING_RECT) {
-                s.rewind();
-                s.moveTo(x0, y0);
-                s.lineTo(x0, y);
-                s.lineTo(x, y);
-                s.lineTo(x, y0);
-                s.lineTo(x0, y0);
-            }
-            else if (state == DRAWING_TRI) {
-                s.rewind();
-                s.moveTo(x0, y0);
-                s.lineTo(x0, y);
-                s.lineTo(x, y);
-                s.lineTo(x0, y0);
-            }
-            else if (state == DRAWING_ELLI) {
-                s.rewind();
-                s.moveTo(x0, y0);
-                int x1, y1, x2, y2;
-                if(x0>x){ x1 = (int)x; x2 = (int)x0; }
-                else    { x2 = (int)x; x1 = (int)x0; }
-                if(y0>y){ y1 = (int)y; y2 = (int)y0; }
-                else    { y2 = (int)y; y1 = (int)y0; }
-                s.addOval(new RectF(x1, y1, x2, y2), Path.Direction.CW);
-            }
-            else if (state == DRAWING_LINE) {
-                s.rewind();
-                s.moveTo(x0, y0);
-                s.lineTo(x, y);
-            }
-            else if (state == ERASING_STROKE) {
+        else drawShape(x, y);
+        invalidate(); // force re-draw
+    }
 
-                Iterator<Stroke> i = strokes.iterator();
-                while (i.hasNext()) {
-                    Stroke str = i.next();
-                    for (Point pnt : str.points) {
-                        if (distance(x, y, pnt) < currentPaint.getStrokeWidth()) {
-                            i.remove();
-                            break;
-                        }
+    private void drawShape(float x, float y){
+        Stroke s = strokes.get( strokes.size()-1 );
+        float x0 = s.points.get(0).x;
+        float y0 = s.points.get(0).y;
+        if (state == DRAWING_RECT) {
+            s.rewind();
+            s.moveTo(x0, y0);
+            s.lineTo(x0, y);
+            s.lineTo(x, y);
+            s.lineTo(x, y0);
+            s.lineTo(x0, y0);
+        }
+        else if (state == DRAWING_TRI) {
+            s.rewind();
+            s.moveTo(x0, y0);
+            s.lineTo(x0, y);
+            s.lineTo(x, y);
+            s.lineTo(x0, y0);
+        }
+        else if (state == DRAWING_ELLI) {
+            s.rewind();
+            s.moveTo(x0, y0);
+            int x1, y1, x2, y2;
+            if(x0>x){ x1 = (int)x; x2 = (int)x0; }
+            else    { x2 = (int)x; x1 = (int)x0; }
+            if(y0>y){ y1 = (int)y; y2 = (int)y0; }
+            else    { y2 = (int)y; y1 = (int)y0; }
+            s.addOval(new RectF(x1, y1, x2, y2), Path.Direction.CW);
+        }
+        else if (state == DRAWING_LINE) {
+            s.rewind();
+            s.moveTo(x0, y0);
+            s.lineTo(x, y);
+        }
+        else if (state == ERASING_STROKE) {
+            Iterator<Stroke> i = strokes.iterator();
+            while (i.hasNext()) {
+                Stroke str = i.next();
+                for (Point pnt : str.points) {
+                    if (distance(x, y, pnt) < currentPaint.getStrokeWidth()) {
+                        i.remove();
+                        break;
                     }
                 }
             }
         }
-        invalidate(); // force re-draw
     }
 
-    public void startStroke(float x, float y){
-        Stroke s = new Stroke(x, y,
-                System.currentTimeMillis(), currentPaint);
-        s.points.add(new Point(x, y));
-        strokes.add(s);
-    }
-
-    public void endStroke(){
-        isInking = false;
+    private void saveShape(float x, float y){
+        if (!isInking) return;
+        // for most recent stroke //
+        Stroke s = strokes.get( strokes.size()-1 );
+        // set final point //
+        s.points.add( new Point(x, y) );
     }
 
     /**
@@ -177,7 +198,8 @@ public class InkView extends View {
      * @param t0 time to start dynamic highlighting
      * @param t time to end dynamic highlighting
      */
-    public void dynamicHighlight(long t0, long t){
+    public void startDynamicHighlighting(long t0, long t){
+        dynamicHighlighting = true;
         markTf = t;
         // locate index of first stroke in t-t0 //
         for(int i=0; i<strokes.size(); i++){
@@ -191,10 +213,14 @@ public class InkView extends View {
         highLightHandler.postDelayed(highLight, dt);
     }
 
+    public void stopDynamicHighlighting(){
+        dynamicHighlighting = false;
+    }
+
     /**
-     * x,y coordinate
+     * x,y coordinate floats
      */
-    private class Point {
+    private static class Point {
         public float x, y;
         public Point(float x1, float y1){
             x = x1;
@@ -202,17 +228,70 @@ public class InkView extends View {
         }
     }
 
-    /**
-     * Calculate new point along line between 2 existing points
-     * @param p0 first point
-     * @param p1 second point
-     * @param c New point will be 1/c from p0 to p1
-     * @return new point between p0 and p1
-     */
-    private Point subPoint(Point p0, Point p1, float c) {
-        return new Point(
-                (int)((p1.x-p0.x)/c+p0.x),
-                (int)((p1.y-p0.y)/c+p0.y)   );
+    public void serialize(File file){
+        try {
+            FileOutputStream fileOut = new FileOutputStream(file);
+            ObjectOutputStream stream = new ObjectOutputStream(fileOut);
+            stream.writeInt(STROKE_ATTRIBUTES);
+            stream.writeInt(strokes.size());
+            for (Stroke s : strokes){
+                stream.writeInt(s.points.size());
+                stream.writeInt(s.type);
+                stream.writeInt(s.paintingBrush.getAlpha());
+                stream.writeInt(s.paintingBrush.getColor());
+                stream.writeFloat(s.paintingBrush.getStrokeWidth());
+                stream.writeInt(s.highlightingBrush.getAlpha());
+                stream.writeInt(s.highlightingBrush.getColor());
+                stream.writeFloat(s.highlightingBrush.getStrokeWidth());
+                stream.writeLong(s.time);
+                for (Point p : s.points){
+                    stream.writeFloat(p.x);
+                    stream.writeFloat(p.y);
+                }
+            }
+            stream.flush();
+            stream.close();
+        }
+        catch(IOException e) {
+            Log.e("ERROR", "Error saving strokes: " + e);
+        }
+    }
+
+    public void deserialize(File file){
+        try {
+            FileInputStream fileIn = new FileInputStream(file.getAbsolutePath());
+            ObjectInputStream stream = new ObjectInputStream(fileIn);
+
+            int numAttrib  = stream.readInt();
+            Log.d("INFO", "numAttrib: " + numAttrib);
+            int numStrokes = stream.readInt();
+            Log.d("INFO", "numStrokes: " + numStrokes);
+            for (int s = 0; s < numStrokes; s++) {
+                int numPoints = stream.readInt();
+                Log.d("INFO", "   numPoints: " + numPoints);
+                state = stream.readInt(); // set drawing state
+                currentPaint.setAlpha(stream.readInt());
+                currentPaint.setColor(stream.readInt());
+                currentPaint.setStrokeWidth(stream.readFloat());
+                highlightPaint.setAlpha(stream.readInt());
+                highlightPaint.setColor(stream.readInt());
+                highlightPaint.setStrokeWidth(stream.readFloat());
+                long t = stream.readLong();
+
+                startStroke(stream.readFloat(), stream.readFloat(),t);
+                // from second stroke, to second-to-last stroke //
+                for (int p = 1; p < numPoints-1; p++) {
+                    addPoint(stream.readFloat(), stream.readFloat());
+                }
+                endStroke(stream.readFloat(), stream.readFloat());
+                Log.d("INFO", "Done with stroke");
+            }
+
+            stream.close();
+        }
+        catch(IOException e) {
+            Log.e("ERROR", "Error loading strokes: " + e);
+        }
     }
 
     private float distance(float x, float y, Point p) {
@@ -225,7 +304,6 @@ public class InkView extends View {
     public void deleteLastStroke(){
         if (strokes.size()>0) {
             strokes.remove(strokes.size() - 1);
-            invalidate();
         }
     }
 
@@ -233,27 +311,32 @@ public class InkView extends View {
      * Stroke made by a user while inking
      */
     private class Stroke extends Path {
-        private long time;
+        final long serialVersionUID = 0L;
         private List<Point> points;
-        private Paint brush;
+        private int type;
         private Paint paintingBrush;
+        private Paint highlightingBrush;
+        private long time;
+        private Paint brush;    // pointer to current Paint object
 
-        public Stroke(float x, float y, long t, Paint p){
+        public Stroke(float x, float y, long t, Paint pB, Paint hB) {
             super();
             points = new LinkedList();
+            points.add( new Point(x, y) );
             this.moveTo(x,y);
             time = t;
-            brush = new Paint(p);
-            paintingBrush = new Paint(p);
+            highlightingBrush = new Paint(hB);
+            paintingBrush = new Paint(pB);
+            brush = paintingBrush;
         }
 
-        private void highlightMode(boolean hi){
-            if (hi) brush = highlightPaint;
+        private void setHighlightMode(boolean hi) {
+            if (hi) brush = highlightingBrush;
             else brush = paintingBrush;
         }
 //
         /**
-         * Add point to stroke, add new bezier every 3rd call
+         * Add point to stroke, add new cubic bezier every 3rd call
          * @param x x coordinate
          * @param y y coordinate
          */
@@ -261,33 +344,44 @@ public class InkView extends View {
             points.add(new Point(x, y));
             int size = points.size();
             if (size > 2) {
-                Point sub1 = subPoint(points.get(size-2), points.get(size-1), curvature);
-                Point sub2 = subPoint(points.get(size-1), points.get(size-2), curvature);
+                Point sub1 = subPoint(points.get(size-2), points.get(size-1));
+                Point sub2 = subPoint(points.get(size-1), points.get(size-2));
                 cubicTo( points.get(size-2).x, points.get(size-2).y,
                          sub1.x, sub1.y,
                          sub2.x, sub2.y  );
                 moveTo(sub2.x, sub2.y);
             }
             else {
-                Point p = subPoint(points.get(1),points.get(0),curvature);
+                Point p = subPoint(points.get(1),points.get(0));
                 lineTo(p.x, p.y);
                 moveTo(p.x, p.y);
             }
+        }
+
+        /**
+         * Calculate new point bisecting line between 2 existing points
+         * @param p0 first point
+         * @param p1 second point
+         * @return new point directly between p0 and p1
+         */
+        private Point subPoint(Point p0, Point p1) {
+            return new Point(
+                    (int)((p1.x-p0.x)/2+p0.x),
+                    (int)((p1.y-p0.y)/2+p0.y)   );
         }
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
-        Log.d("DATA", "InkView Registered touch");
             float x = motionEvent.getX();
             float y = motionEvent.getY();
             switch (motionEvent.getAction()){
                 case(MotionEvent.ACTION_DOWN):
-                        addStroke(x, y);
+                        startStroke(x, y, System.currentTimeMillis());
                     break;
 
                 case(MotionEvent.ACTION_UP):
-                    endStroke();
+                    endStroke(x, y);
                     break;
 
                 case(MotionEvent.ACTION_MOVE):
@@ -301,22 +395,36 @@ public class InkView extends View {
     }
 
     /**
-     * Recursive function calls itself to highlight each stroke in sequence
+     * Recursive object calls itself to highlight each stroke in sequence
      */
     private Runnable highLight = new Runnable() {
         @Override
         public void run() {
+            // un-highlight previous stroke //
             if (litStroke > 0) {
-                strokes.get(litStroke-1).highlightMode(false);
+                strokes.get(litStroke - 1).setHighlightMode(false);
             }
-            strokes.get(litStroke).highlightMode(true);
-            invalidate();
-            if (litStroke < strokes.size()-1 && strokes.get(litStroke+1).time < markTf) {
-                long dt = strokes.get(litStroke + 1).time - strokes.get(litStroke).time;
+            // end highlighting if no strokes remain //
+            if (litStroke >= strokes.size())
+                dynamicHighlighting = false;
+            // schedule next highlight //
+            if (dynamicHighlighting){
+                strokes.get(litStroke).setHighlightMode(true); // highlight current stroke
+                invalidate();
+                long dt;
+                // calculate time to highlight current stroke //
+                if (litStroke < strokes.size()-1 && strokes.get(litStroke+1).time < markTf) {
+                    dt = strokes.get(litStroke + 1).time - strokes.get(litStroke).time;
+                }
+                else{
+                    dt = markTf - strokes.get(litStroke).time;
+                    // end highlighting if this stroke goes until end of highlight period //
+                    dynamicHighlighting = false;
+                }
                 litStroke++;
                 highLightHandler.postDelayed(highLight, dt);
             }
+            invalidate();
         }
     };
-
 }

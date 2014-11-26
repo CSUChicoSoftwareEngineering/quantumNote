@@ -27,6 +27,14 @@
             android:onClick="openCamera"
             android:background="#0078ff00" />
 -->
+
+        <view
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            class="com.trihedraltutoring.quantumnote.InkView"
+            android:id="@+id/inkView"
+            android:layout_gravity="center" />
+
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -34,8 +42,8 @@
             android:id="@+id/recButton"
             android:layout_gravity="end|top"
             android:onClick="recClicked"
-            android:visibility="gone"
-            android:clickable="true" />
+            android:clickable="true"
+            android:visibility="gone" />
 
         <Button
             android:layout_width="wrap_content"
@@ -44,15 +52,8 @@
             android:id="@+id/playButton"
             android:layout_gravity="start|top"
             android:onClick="playClicked"
-            android:visibility="gone"
-            android:clickable="true" />
-
-        <view
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            class="com.trihedraltutoring.quantumnote.InkView"
-            android:id="@+id/inkView"
-            android:layout_gravity="center" />
+            android:clickable="true"
+            android:visibility="gone" />
 
         <ImageView
             android:layout_width="143dp"
