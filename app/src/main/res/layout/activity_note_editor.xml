@@ -34,7 +34,8 @@
             android:id="@+id/imageView1"
             android:layout_gravity="bottom|right"
             android:clickable="false"
-            android:focusableInTouchMode="false"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:cropToPadding="false" />
 
         <ListView
@@ -43,10 +44,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="left|top" />
 
-        <!-- I don't think we need this RelativeLayout around EditText? -Love, Kyle -->
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
 
             <view
                 class="com.trihedraltutoring.quantumnote.NoteText"
@@ -56,19 +53,19 @@
                 android:ems="10"
                 android:singleLine="false"
                 android:gravity="top"
-                android:inputType="textMultiLine">
-
-                <requestFocus />
+                android:focusableInTouchMode="true"
+                android:focusable="true"
+                android:inputType="textMultiLine|textAutoCorrect">
              </view>
-
-        </RelativeLayout>
 
         <view
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             class="com.trihedraltutoring.quantumnote.InkView"
             android:id="@+id/inkView"
-            android:layout_gravity="center" />
+            android:layout_gravity="center"
+            android:focusable="true"
+            android:focusableInTouchMode="true"/>
 
         <com.capricorn.RayMenu
             android:id="@+id/ray_menu"

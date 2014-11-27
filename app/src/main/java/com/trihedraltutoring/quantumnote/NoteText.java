@@ -14,6 +14,7 @@ public class NoteText extends EditText{
         super(c, attributeSet);
     }
 
+
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
 

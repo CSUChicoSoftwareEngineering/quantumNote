@@ -8,8 +8,8 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         custom:childSize="100px"
-        custom:fromDegrees="90"
-        custom:toDegrees="270" />
+        custom:fromDegrees="0"
+        custom:toDegrees="360" />
 
     <FrameLayout
         android:id="@+id/control_layout"
