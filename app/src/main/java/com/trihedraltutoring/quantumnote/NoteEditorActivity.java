@@ -557,7 +557,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
             noteText.dispatchTouchEvent(motionEvent);
         }
         if (motionEvent.getAction() == MotionEvent.ACTION_MOVE){
-            // hack to prevent drawing when opening Nav frame //
+            // hack to prevent drawing when opening Nav Frame //
             if(mNavigationDrawerFragment.isVisible() && !prevNavVisible
                     && inkView.isInking) { // not using accessor method (recommended by Android)
                 inkView.deleteLastStroke();
