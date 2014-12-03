@@ -574,7 +574,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
     }
 
     /**
-     * Called for all touch events
+     * Called for all touch events //
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
