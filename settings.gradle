@@ -1,1 +1,2 @@
 include ':ArcMenu',':app'
+include ':colorPicker'

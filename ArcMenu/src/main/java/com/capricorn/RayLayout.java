@@ -1,8 +1,10 @@
 package com.capricorn;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -96,7 +98,7 @@ public class RayLayout extends ViewGroup {
 	}
 
 	/**
-	 * refers to {@link LayoutAnimationController#getDelayForView(View view)}
+	 * refers to {@link android.view.animation.LayoutAnimationController#getDelayForView(View view)}
 	 */
 	private static long computeStartOffset(final int childCount, final boolean expanded, final int index,
 			final float delayPercent, final long duration, Interpolator interpolator) {
@@ -151,7 +153,8 @@ public class RayLayout extends ViewGroup {
 		return animationSet;
 	}
 
-	private void bindChildAnimation(final View child, final int index, final long duration) {
+	@TargetApi(Build.VERSION_CODES.DONUT)
+    private void bindChildAnimation(final View child, final int index, final long duration) {
 		final boolean expanded = mExpanded;
 		final int childCount = getChildCount();
 		Rect frame = computeChildFrame(!expanded, mLeftHolderWidth, index, mChildGap, mChildSize);

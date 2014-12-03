@@ -1,5 +1,6 @@
 package com.trihedraltutoring.quantumnote;
 
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -13,6 +14,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceActivity;
@@ -41,8 +43,8 @@ import com.capricorn.ArcMenu;
 import com.capricorn.RayMenu;
 import com.trihedraltutoring.quantumnote.data.NoteItem;
 import com.trihedraltutoring.quantumnote.data.NotesDataSource;
-import com.trihedraltutoring.quantumnote.ColorPickerDialog;
-import com.trihedraltutoring.quantumnote.ColorPickerDialog.OnColorSelectedListener;
+//import com.trihedraltutoring.quantumnote.ColorPickerDialog;
+//import com.trihedraltutoring.quantumnote.ColorPickerDialog.OnColorSelectedListener;
 import com.trihedraltutoring.quantumnote.R;
 
 import java.io.File;
@@ -58,8 +60,17 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
+import it.gmariotti.android.example.colorpicker.internal.NsMenuAdapter;
+import it.gmariotti.android.example.colorpicker.Utils;
+import it.gmariotti.android.example.colorpicker.calendarstock.ColorPickerDialog;
+import it.gmariotti.android.example.colorpicker.calendarstock.ColorPickerSwatch;
+import it.gmariotti.android.example.colorpicker.internal.NsMenuItemModel;
+
 public class NoteEditorActivity extends ListActivity implements Observer,
         NavigationDrawerFragment.NavigationDrawerCallbacks {
+
+    private int mSelectedColorCal0 = 0;
+    int mLastPosition;
 
     private static final int[] ITEM_DRAWABLES = {R.drawable.ic_launcher, R.drawable.tri, R.drawable.sq, R.drawable.cir, R.drawable.ic_launcher, R.drawable.ic_launcher, R.drawable.ic_launcher};
     private static final int[] RAY_DRAWABLES = {R.drawable.texticon, R.drawable.pencil, R.drawable.sq, R.drawable.cir, R.drawable.ic_launcher, R.drawable.ic_launcher, R.drawable.ic_launcher};
@@ -73,6 +84,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
      */
     private CharSequence mTitle;
     InkView inkView;
+    OpenCamera openCam;
     NoteText noteText;
     private NoteItem note;
     AudioRecorder audio;
@@ -88,11 +100,11 @@ public class NoteEditorActivity extends ListActivity implements Observer,
 
 
 
-    public void openCamera(View view) {
+    //public void openCamera(View view) {
 //        Intent data = new Intent();
 //        data.setAction(Intent.ACTION_GET_CONTENT);
-        Intent intent = new Intent(this, OpenCamera.class);
-        startActivityForResult(intent, 0);
+        //Intent intent = new Intent(this, OpenCamera.class);
+      //  startActivityForResult(intent, 0);
 
 //        Intent getintent = getIntent();
 //
@@ -101,11 +113,11 @@ public class NoteEditorActivity extends ListActivity implements Observer,
 //            Bitmap b = BitmapFactory.decodeByteArray(
 //                    getIntent().getByteArrayExtra("byteArray"), 0, getIntent().getByteArrayExtra("byteArray").length);
 //            previewThumbnail.setImageBitmap(b);
-//            iv = (ImageView) findViewById(R.id.imageView1);
+//            iv = (ImageView) findViewById(R.id.imageView2);
 //            iv.setImageBitmap(b);
 //        }
 
-    }
+    //}
     /**
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -120,8 +132,9 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         }
     }
     **/
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
 
@@ -145,6 +158,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         ArcMenu arcMenu = (ArcMenu) findViewById(R.id.arc_menu);
         initArcMenu(arcMenu, ITEM_DRAWABLES);
         RayMenu rayMenu = (RayMenu) findViewById(R.id.ray_menu);
+        iv = (ImageView) findViewById(R.id.imageView2);
 
         // Deserialize inkView //
         inkView.requestFocus();
@@ -177,6 +191,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
             final int position = i;
             rayMenu.addItem(item, new OnClickListener() {
 
+                @TargetApi(Build.VERSION_CODES.CUPCAKE)
                 @Override
                 public void onClick(View v) {
                     if (position == 0) {
@@ -196,12 +211,15 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                         Toast.makeText(NoteEditorActivity.this, "Ink",
                                 Toast.LENGTH_SHORT).show();
                     } else if (position == 2) {
-                        //Toast.makeText(NoteEditorActivity.this, "Camera",
-                                //Toast.LENGTH_SHORT).show();
+
+                        Toast.makeText(NoteEditorActivity.this, "Camera",
+                                Toast.LENGTH_SHORT).show();
+                        //openCam.onCreate(savedInstanceState);
                         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                            openCam.startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
                         }
+
                     } else if (position == 3) {
                         Toast.makeText(NoteEditorActivity.this, "Record",
                                 Toast.LENGTH_SHORT).show();
@@ -227,6 +245,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         // Create onGlobalLayout to be called after inkView is drawn ///
         ViewTreeObserver vto = inkView.getViewTreeObserver();
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
             @Override
             public void onGlobalLayout() {
                 inkView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
@@ -315,13 +334,14 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                     } else if (position == 6) {
                         Toast.makeText(NoteEditorActivity.this, "Color",
                                 Toast.LENGTH_SHORT).show();
-                        showColorPickerDialogDemo();
+
                     }
                 }
             });
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void onNavigationDrawerItemSelected(int position) {
 
@@ -400,6 +420,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void restoreActionBar() {
         ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
@@ -421,28 +442,31 @@ public class NoteEditorActivity extends ListActivity implements Observer,
 
         int id = item.getItemId();
         if (id == R.id.action_settings) {
-            showColorPickerDialogDemo();
+
+            int [] mColor = Utils.ColorUtils.colorChoice(this);
+
+            ColorPickerDialog colorcalendar = ColorPickerDialog.newInstance(
+                    R.string.color_picker_default_title, mColor,
+                    mSelectedColorCal0, 5,
+                    Utils.isTablet(this) ? ColorPickerDialog.SIZE_LARGE
+                            : ColorPickerDialog.SIZE_SMALL);
+
+            colorcalendar.setOnColorSelectedListener(colorcalendarListener);
+            colorcalendar.show(getFragmentManager(), "cal");
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private void showColorPickerDialogDemo() {
+    // Implement listener to get selected color value
+    ColorPickerSwatch.OnColorSelectedListener colorcalendarListener = new ColorPickerSwatch.OnColorSelectedListener(){
 
-        int initialColor = Color.WHITE;
-
-        ColorPickerDialog colorPickerDialog = new ColorPickerDialog(this, initialColor, new OnColorSelectedListener() {
-
-            @Override
-            public void onColorSelected(int color) {
-                showToast(color);
-            }
-
-        });
-        colorPickerDialog.show();
-
-    }
+        @Override
+        public void onColorSelected(int color) {
+            mSelectedColorCal0 = color;
+        }
+    };
 
     private void showToast(int color) {
         String rgbString = "R: " + Color.red(color) + " B: " + Color.blue(color) + " G: " + Color.green(color);
@@ -453,6 +477,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
     /**
      * A placeholder fragment containing a simple view.
      */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class PlaceholderFragment extends Fragment implements View.OnClickListener {
         /**
          * The fragment argument representing the section number for this
@@ -551,6 +576,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
     /**
      * Called for all touch events
      */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public boolean dispatchTouchEvent(MotionEvent motionEvent) {
         if (noteText.requestFocus() && inkView.state == inkView.INACTIVE){
@@ -577,4 +603,5 @@ public class NoteEditorActivity extends ListActivity implements Observer,
             startTime = t0;
         }
     }
+
 }

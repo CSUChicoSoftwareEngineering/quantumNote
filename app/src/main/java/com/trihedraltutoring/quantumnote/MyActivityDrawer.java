@@ -1,5 +1,6 @@
 package com.trihedraltutoring.quantumnote;
 
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -9,6 +10,7 @@ import android.app.Fragment;
 import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -75,7 +77,9 @@ public class MyActivityDrawer extends ListActivity {
 
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public class DeleteDialogFragment extends DialogFragment {
+        @TargetApi(Build.VERSION_CODES.HONEYCOMB)
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
 
@@ -100,6 +104,7 @@ public class MyActivityDrawer extends ListActivity {
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void confirmDelete() {
         DialogFragment newFragment = new DeleteDialogFragment();
         newFragment.show(getFragmentManager(), "delete");
@@ -133,6 +138,7 @@ public class MyActivityDrawer extends ListActivity {
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void restoreActionBar() {
         ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
@@ -186,6 +192,7 @@ public class MyActivityDrawer extends ListActivity {
     /**
      * A placeholder fragment containing a simple view.
      */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class PlaceholderFragment extends Fragment implements View.OnClickListener {
         /**
          * The fragment argument representing the section number for this

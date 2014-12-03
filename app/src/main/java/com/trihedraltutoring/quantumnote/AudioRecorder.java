@@ -8,10 +8,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Observable;
 
+import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.util.Log;
 import android.media.AudioManager;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -29,6 +31,7 @@ public class AudioRecorder extends Observable  {
     private int audioState = 0;
     Context context;
 
+    @TargetApi(Build.VERSION_CODES.FROYO)
     public AudioRecorder(Context c){
         context = c;
         AudioManager btManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
