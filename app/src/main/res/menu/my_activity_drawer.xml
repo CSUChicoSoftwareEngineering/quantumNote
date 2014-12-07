@@ -5,8 +5,4 @@
         android:title="@string/action_create"
         android:showAsAction="always|withText"
         android:icon="@drawable/ic_action_create_note"/>
-    <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
-        android:orderInCategory="100"
-        android:showAsAction="never" />
 </menu>

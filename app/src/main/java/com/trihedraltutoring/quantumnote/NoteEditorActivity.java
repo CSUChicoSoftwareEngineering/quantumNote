@@ -425,13 +425,21 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle(mTitle);
+
+        actionBar.setTitle(note.getText());
+        if(note.getText().length() == 0)
+        {
+            actionBar.setTitle("Untitled Note");
+        }
+        else{
+            actionBar.setTitle(note.getText());
+        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-            getMenuInflater().inflate(R.menu.my_activity_drawer, menu);
+            getMenuInflater().inflate(R.menu.activity_note_editor, menu);
             restoreActionBar();
 
         return super.onCreateOptionsMenu(menu);
@@ -454,6 +462,14 @@ public class NoteEditorActivity extends ListActivity implements Observer,
             colorcalendar.setOnColorSelectedListener(colorcalendarListener);
             colorcalendar.show(getFragmentManager(), "cal");
             return true;
+        }
+
+        if (id == R.id.action_record) {
+            recClicked(inkView);
+        }
+
+        if (id == R.id.action_camera) {
+
         }
 
         return super.onOptionsItemSelected(item);

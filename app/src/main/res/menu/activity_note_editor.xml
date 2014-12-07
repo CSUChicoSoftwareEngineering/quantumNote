@@ -1,0 +1,16 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MyActivityDrawer" >
+    <item android:id="@+id/action_camera"
+        android:title="@string/action_camera"
+        android:showAsAction="always|withText"
+        android:icon="@drawable/ic_action_camera"/>
+    <item android:id="@+id/action_record"
+        android:title="@string/action_record"
+        android:showAsAction="always|withText"
+        android:icon="@drawable/ic_action_record"/>
+    <item android:id="@+id/action_settings"
+        android:title="@string/action_settings"
+        android:orderInCategory="100"
+        android:showAsAction="never"/>
+</menu>

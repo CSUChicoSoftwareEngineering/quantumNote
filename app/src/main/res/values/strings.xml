@@ -13,6 +13,8 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_create">Create</string>
     <string name="action_settings">Color</string>
+    <string name="action_camera">Camera</string>
+    <string name="action_record">Record</string>
     <string name="PieControl">PieControl</string>
     <string name="title_activity_open_camera">OpenCamera</string>
     <string name="hello_world">Hello world!</string>
