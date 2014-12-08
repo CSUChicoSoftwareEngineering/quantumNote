@@ -50,13 +50,18 @@
                 android:id="@+id/noteText"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:ems="10"
                 android:singleLine="false"
-                android:gravity="top"
+                android:lines="25"
+                android:minLines="10"
                 android:focusableInTouchMode="true"
                 android:focusable="true"
-                android:inputType="textMultiLine|textAutoCorrect">
-             </view>
+                android:inputType="textMultiLine|textAutoCorrect"
+                android:autoText="true"
+                android:cursorVisible="true"
+                android:textIsSelectable="true"
+                android:gravity="top|left"
+                android:scrollbars="vertical"
+                android:background="@android:drawable/editbox_background_normal"/>
 
         <view
             android:layout_width="match_parent"
@@ -65,7 +70,8 @@
             android:id="@+id/inkView"
             android:layout_gravity="center"
             android:focusable="true"
-            android:focusableInTouchMode="true"/>
+            android:focusableInTouchMode="true"
+            android:scrollbars="vertical"/>
 
         <com.capricorn.RayMenu
             android:id="@+id/ray_menu"
@@ -80,10 +86,10 @@
             android:src="@drawable/pie"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="left|center_vertical"
+            android:layout_gravity="end|top"
             android:paddingRight="0dp"
-            android:focusable="true"
-            android:visibility="gone"/>             <!-- Remove this line to show pie button -->
+            android:focusable="true"/>
+        <!-- Remove this line to show pie button -->
 
         <Button
             android:layout_width="wrap_content"
@@ -92,15 +98,17 @@
             android:id="@+id/recButton"
             android:layout_gravity="end|top"
             android:onClick="recClicked"
-            android:clickable="true"/>
+            android:clickable="true"
+            android:visibility="gone"/>
 
-        <Button
+        <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Play"
+            android:src="@drawable/play"
             android:id="@+id/playButton"
             android:layout_gravity="end|bottom"
             android:onClick="playClicked"
+            android:background="@null"
             android:clickable="true"/>
 
         <!--<com.capricorn.ArcMenu-->

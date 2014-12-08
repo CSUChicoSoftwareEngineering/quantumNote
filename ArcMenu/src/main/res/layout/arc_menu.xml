@@ -7,9 +7,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        custom:childSize="100px"
-        custom:fromDegrees="0"
-        custom:toDegrees="360" />
+        custom:childSize="60px"/>
+        <!--custom:fromDegrees="0.0"-->
+        <!--custom:toDegrees="90.0" />-->
 
     <FrameLayout
         android:id="@+id/control_layout"
@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:duplicateParentState="true"
-            android:src="@drawable/pie" />
+            android:src="@drawable/shapes2" />
     </FrameLayout>
 
 </merge>

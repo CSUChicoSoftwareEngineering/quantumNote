@@ -8,6 +8,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Context;
 import android.graphics.Color;
 import android.app.ListActivity;
 import android.content.DialogInterface;
@@ -32,11 +33,15 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.capricorn.ArcMenu;
@@ -72,8 +77,8 @@ public class NoteEditorActivity extends ListActivity implements Observer,
     private int mSelectedColorCal0 = 0;
     int mLastPosition;
 
-    private static final int[] ITEM_DRAWABLES = {R.drawable.ic_launcher, R.drawable.tri, R.drawable.sq, R.drawable.cir, R.drawable.ic_launcher, R.drawable.ic_launcher, R.drawable.ic_launcher};
-    private static final int[] RAY_DRAWABLES = {R.drawable.texticon, R.drawable.pencil, R.drawable.sq, R.drawable.cir, R.drawable.ic_launcher, R.drawable.ic_launcher, R.drawable.ic_launcher};
+    private static final int[] ITEM_DRAWABLES = { R.drawable.tri, R.drawable.sq, R.drawable.cir, R.drawable.line, R.drawable.eraser};
+    private static final int[] RAY_DRAWABLES = {R.drawable.texticon, R.drawable.pencil, R.drawable.shapes, R.drawable.blank, R.drawable.blank};
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -155,14 +160,16 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         prevMotionEvent = MotionEvent.obtain(0,0,MotionEvent.ACTION_UP,0,0,0);
         inkView = (InkView) findViewById(R.id.inkView); // get inkView defined in xml
         noteText = (NoteText) findViewById(R.id.noteText);
-        ArcMenu arcMenu = (ArcMenu) findViewById(R.id.arc_menu);
+        final ArcMenu arcMenu = (ArcMenu) findViewById(R.id.arc_menu);
         initArcMenu(arcMenu, ITEM_DRAWABLES);
-        RayMenu rayMenu = (RayMenu) findViewById(R.id.ray_menu);
+        final RayMenu rayMenu = (RayMenu) findViewById(R.id.ray_menu);
         iv = (ImageView) findViewById(R.id.imageView2);
 
         // Deserialize inkView //
         inkView.requestFocus();
         inkView.deserialize(new File(noteRoot, "inkView"));
+        noteText.setCursorVisible(false);
+        arcMenu.setVisibility(View.GONE);
 
         // Deserialize sounds //
         try {
@@ -195,37 +202,35 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                 @Override
                 public void onClick(View v) {
                     if (position == 0) {
-                        noteText.requestFocus();
                         inkView.clearFocus();
+                        noteText.setCursorVisible(true);
+                        noteText.requestFocus();
                         inkView.state = inkView.INACTIVE;
-                        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                         Toast.makeText(NoteEditorActivity.this, "Text",
                                 Toast.LENGTH_SHORT).show();
+                        ((InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE)).toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+                        ImageView currentTool = (ImageView) findViewById(R.id.control_hint);
+                        currentTool.setImageResource(R.drawable.texticon);
 
                     } else if (position == 1) {
+                        ((InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(noteText.getWindowToken(), 0);
                         noteText.clearFocus();
                         inkView.requestFocus();
                         inkView.state = InkView.DRAWING;
                         inkView.setWidth(4);
-                        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
                         Toast.makeText(NoteEditorActivity.this, "Ink",
                                 Toast.LENGTH_SHORT).show();
+                        noteText.setCursorVisible(false);
+                        ImageView currentTool = (ImageView) findViewById(R.id.control_hint);
+                        currentTool.setImageResource(R.drawable.pencil);
+
                     } else if (position == 2) {
 
-                        Toast.makeText(NoteEditorActivity.this, "Camera",
+                        Toast.makeText(NoteEditorActivity.this, "Shapes",
                                 Toast.LENGTH_SHORT).show();
                         //openCam.onCreate(savedInstanceState);
-                        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                            openCam.startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-                        }
-
-                    } else if (position == 3) {
-                        Toast.makeText(NoteEditorActivity.this, "Record",
-                                Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(NoteEditorActivity.this, "Save",
-                                Toast.LENGTH_SHORT).show();
+                        arcMenu.setVisibility(View.VISIBLE);
+                        arcMenu.performClick();
                     }
                 }
             });
@@ -239,8 +244,6 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
-
-
 
         // Create onGlobalLayout to be called after inkView is drawn ///
         ViewTreeObserver vto = inkView.getViewTreeObserver();
@@ -301,40 +304,44 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                 public void onClick(View v) {
 
                     if (position == 0) {
-                        Toast.makeText(NoteEditorActivity.this, "Draw",
-                                Toast.LENGTH_SHORT).show();
-                        inkView.setWidth(4);
-                        inkView.state = InkView.DRAWING;
-                    } else if (position == 1) {
                         Toast.makeText(NoteEditorActivity.this, "Triangle",
                                 Toast.LENGTH_SHORT).show();
                         inkView.setWidth(4);
                         inkView.state = InkView.DRAWING_TRI;
-                    } else if (position == 2) {
+                        ImageView currentTool = (ImageView) findViewById(R.id.control_hint);
+                        currentTool.setImageResource(R.drawable.tri);
+
+                    } else if (position == 1) {
                         Toast.makeText(NoteEditorActivity.this, "Rectangle",
                                 Toast.LENGTH_SHORT).show();
                         inkView.setWidth(4);
                         inkView.state = InkView.DRAWING_RECT;
-                    } else if (position == 3) {
+                        ImageView currentTool = (ImageView) findViewById(R.id.control_hint);
+                        currentTool.setImageResource(R.drawable.sq);
+
+                    } else if (position == 2) {
                         Toast.makeText(NoteEditorActivity.this, "Ellipse",
                                 Toast.LENGTH_SHORT).show();
-                        inkView.setWidth(4);
+                        inkView.setWidth(3);
                         inkView.state = InkView.DRAWING_ELLI;
-                    } else if (position == 4) {
+                        ImageView currentTool = (ImageView) findViewById(R.id.control_hint);
+                        currentTool.setImageResource(R.drawable.cir);
+
+                    } else if (position == 3) {
                         Toast.makeText(NoteEditorActivity.this, "Line",
                                 Toast.LENGTH_SHORT).show();
                         inkView.setWidth(4);
                         inkView.state = InkView.DRAWING_LINE;
+                        ImageView currentTool = (ImageView) findViewById(R.id.control_hint);
+                        currentTool.setImageResource(R.drawable.line);
 
-                    } else if (position == 5) {
+                    } else if (position == 4) {
                         Toast.makeText(NoteEditorActivity.this, "Erase",
                                 Toast.LENGTH_SHORT).show();
                         inkView.setWidth(30);
                         inkView.state = InkView.ERASING_STROKE;
-                    } else if (position == 6) {
-                        Toast.makeText(NoteEditorActivity.this, "Color",
-                                Toast.LENGTH_SHORT).show();
-
+                        ImageView currentTool = (ImageView) findViewById(R.id.control_hint);
+                        currentTool.setImageResource(R.drawable.eraser);
                     }
                 }
             });
@@ -554,12 +561,12 @@ public class NoteEditorActivity extends ListActivity implements Observer,
      */
     @Override
     public void update(Observable observable, Object data) {
-        Button playB = (Button) findViewById(R.id.playButton);
+        ImageButton playB = (ImageButton) findViewById(R.id.playButton);
         Button recordB = (Button) findViewById(R.id.recButton);
-        if (audio.getState() == AudioRecorder.PLAYING) playB.setText("Stop");
+        if (audio.getState() == AudioRecorder.PLAYING) playB.setImageResource(R.drawable.pause);
         else if (audio.getState() == AudioRecorder.RECORDING) recordB.setText("Stop");
         else {
-            playB.setText("Play");
+            playB.setImageResource(R.drawable.play);
             recordB.setText("Rec");
             if (audio.getPrevState() == AudioRecorder.PLAYING){
                 playAll(); // play next audio file
