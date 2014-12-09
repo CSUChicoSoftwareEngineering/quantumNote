@@ -220,6 +220,7 @@ public class InkView extends View {
      * @param t time to end dynamic highlighting
      */
     public void startDynamicHighlighting(long t0, long t){
+        if (strokes.size() == 0) return;
         dynamicHighlighting = true;
         markTf = t;
         // locate index of first stroke in t-t0 //

@@ -201,6 +201,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                 @TargetApi(Build.VERSION_CODES.CUPCAKE)
                 @Override
                 public void onClick(View v) {
+                    arcMenu.setVisibility(View.GONE);
                     if (position == 0) {
                         inkView.clearFocus();
                         noteText.setCursorVisible(true);
@@ -217,7 +218,6 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                         noteText.clearFocus();
                         inkView.requestFocus();
                         inkView.state = InkView.DRAWING;
-                        inkView.setWidth(4);
                         Toast.makeText(NoteEditorActivity.this, "Ink",
                                 Toast.LENGTH_SHORT).show();
                         noteText.setCursorVisible(false);
@@ -309,11 +309,9 @@ public class NoteEditorActivity extends ListActivity implements Observer,
 
                 @Override
                 public void onClick(View v) {
-
                     if (position == 0) {
                         Toast.makeText(NoteEditorActivity.this, "Triangle",
                                 Toast.LENGTH_SHORT).show();
-                        inkView.setWidth(4);
                         inkView.state = InkView.DRAWING_TRI;
                         ImageView currentTool = (ImageView) findViewById(R.id.control_hint);
                         currentTool.setImageResource(R.drawable.tri);
@@ -321,7 +319,6 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                     } else if (position == 1) {
                         Toast.makeText(NoteEditorActivity.this, "Rectangle",
                                 Toast.LENGTH_SHORT).show();
-                        inkView.setWidth(4);
                         inkView.state = InkView.DRAWING_RECT;
                         ImageView currentTool = (ImageView) findViewById(R.id.control_hint);
                         currentTool.setImageResource(R.drawable.sq);
@@ -329,7 +326,6 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                     } else if (position == 2) {
                         Toast.makeText(NoteEditorActivity.this, "Ellipse",
                                 Toast.LENGTH_SHORT).show();
-                        inkView.setWidth(3);
                         inkView.state = InkView.DRAWING_ELLI;
                         ImageView currentTool = (ImageView) findViewById(R.id.control_hint);
                         currentTool.setImageResource(R.drawable.cir);
@@ -337,7 +333,6 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                     } else if (position == 3) {
                         Toast.makeText(NoteEditorActivity.this, "Line",
                                 Toast.LENGTH_SHORT).show();
-                        inkView.setWidth(4);
                         inkView.state = InkView.DRAWING_LINE;
                         ImageView currentTool = (ImageView) findViewById(R.id.control_hint);
                         currentTool.setImageResource(R.drawable.line);
@@ -345,7 +340,6 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                     } else if (position == 4) {
                         Toast.makeText(NoteEditorActivity.this, "Erase",
                                 Toast.LENGTH_SHORT).show();
-                        inkView.setWidth(30);
                         inkView.state = InkView.ERASING_STROKE;
                         ImageView currentTool = (ImageView) findViewById(R.id.control_hint);
                         currentTool.setImageResource(R.drawable.eraser);
@@ -358,61 +352,28 @@ public class NoteEditorActivity extends ListActivity implements Observer,
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     //@Override
     public void onNavigationDrawerItemSelected(int position) {
-
-        // Temporary solution. position vales hard-coded //
-        if(inkView != null) {
-            switch (position) {
-                case 0:
-                    inkView.requestFocus();
-                    noteText.clearFocus();
-                    inkView.setWidth(4);
-                    inkView.state = InkView.DRAWING;
-                    break;
-                case 1:
-                    inkView.clearFocus();
-                    noteText.requestFocus();
-                    inkView.state = InkView.INACTIVE;
-                    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-                    break;
-                case 2:
-                    inkView.requestFocus();
-                    noteText.clearFocus();
-                    inkView.setWidth(4);
-                    inkView.state = InkView.DRAWING_TRI;
-                    break;
-                case 3:
-                    inkView.requestFocus();
-                    noteText.clearFocus();
-                    inkView.setWidth(4);
-                    inkView.state = InkView.DRAWING_RECT;
-                    break;
-                case 4:
-                    inkView.requestFocus();
-                    noteText.clearFocus();
-                    inkView.setWidth(4);
-                    inkView.state = InkView.DRAWING_ELLI;
-                    break;
-                case 5:
-                    inkView.requestFocus();
-                    noteText.clearFocus();
-                    inkView.setWidth(4);
-                    inkView.state = InkView.DRAWING_LINE;
-                    break;
-                case 6:
-                    inkView.requestFocus();
-                    noteText.clearFocus();
-                    inkView.setWidth(30);
-                    inkView.state = InkView.ERASING_STROKE;
-            }
+        switch (position) {
+            case 0:
+                break;
+            case 1:
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+            case 4:
+                break;
+            case 5:
+                break;
+            case 6:
         }
-
-
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
                 .commit();
     }
+
 
     public void onSectionAttached(int number) {
         switch (number) {
@@ -495,14 +456,12 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         @Override
         public void onColorSelected(int color) {
             mSelectedColorCal0 = color;
+            Log.d("DATA", "Color: " + color);
+            inkView.setColor(Color.alpha(color), Color.red(color),Color.green(color),Color.blue(color));
+            if (Color.alpha(color)<255) inkView.setWidth(40);
+            else inkView.setWidth(4);
         }
     };
-
-    private void showToast(int color) {
-        String rgbString = "R: " + Color.red(color) + " B: " + Color.blue(color) + " G: " + Color.green(color);
-        Toast.makeText(this, rgbString, Toast.LENGTH_SHORT).show();
-        inkView.setColor(255, Color.red(color), Color.green(color), Color.blue(color));
-    }
 
     /**
      * A placeholder fragment containing a simple view.
