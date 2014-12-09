@@ -257,14 +257,21 @@ public class NoteEditorActivity extends ListActivity implements Observer,
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        saveNote();
+    }
+    @Override
     public void onBackPressed() {
-        saveAndFinish();
+        saveNote();
+        finish();
     }
 
-    private void saveAndFinish() {
+    private void saveNote() {
         String textStr = noteText.getText().toString();
 
         // Serialize inkview //
+        Log.d("DATA", "Aboot to serialize");
         inkView.serialize(new File(noteRoot, "inkView"));
 
         // Serialize sounds //
@@ -286,7 +293,6 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         intent.putExtra("key", note.getKey());
         intent.putExtra("text", textStr);
         setResult(RESULT_OK, intent);
-        finish();
 
     }
 
@@ -349,7 +355,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    @Override
+    //@Override
     public void onNavigationDrawerItemSelected(int position) {
 
         // Temporary solution. position vales hard-coded //

@@ -33,6 +33,9 @@ public class InkView extends View {
     private float xOffset, yOffset;
     private long markTf;
     private int litStroke;
+    private int impactDist = 10;  // distance in pixels that qualifies as an impact
+    private Point prevPoint;
+    private Point newPoint;
     private Handler highLightHandler;
     public boolean penIsDown = false; // public for frequent external access (recommended by Android)
     private boolean dynamicHighlighting = false;
@@ -171,18 +174,6 @@ public class InkView extends View {
             s.moveTo(x0, y0);
             s.lineTo(x, y);
         }
-        else if (state == ERASING_STROKE) {
-            Iterator<Stroke> i = strokes.iterator();
-            while (i.hasNext()) {
-                Stroke str = i.next();
-                for (Point pnt : str.points) {
-                    if (pnt.distanceTo(new Point (x,y)) < currentPaint.getStrokeWidth()) {
-                        i.remove();
-                        break;
-                    }
-                }
-            }
-        }
     }
 
     private void saveShape(float x, float y){
@@ -191,6 +182,36 @@ public class InkView extends View {
         Stroke s = strokes.get( strokes.size()-1 );
         // set final point //
         s.points.add( new Point(x, y) );
+    }
+
+
+    private void startErase(){
+    }
+
+    private void midErase(float x, float y){
+        Point touchPoint = new Point(x, y);
+        prevPoint = new Point(999999, 999999);
+
+        Iterator<Stroke> i = strokes.iterator();
+        Log.d("DATA", "Number of strokes: " + strokes.size());
+        while (i.hasNext()) {
+            Log.d("DATA", "checking a stroke");
+            Stroke str = i.next();
+            for (Point pnt : str.points) {
+                if (touchPoint.distanceToLine(pnt, prevPoint) < impactDist) {
+                    Log.d("DATA", "midErase says: " + touchPoint.distanceToLine(pnt, prevPoint));
+                    Log.d("DATA", "ERAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASE!!!!");
+                    i.remove();
+                    invalidate();
+                    return;
+                }
+                prevPoint = pnt;
+            }
+        }
+    }
+
+    private void endErase(float x, float y){
+
     }
 
     /**
@@ -216,7 +237,6 @@ public class InkView extends View {
     public void stopDynamicHighlighting(){
         dynamicHighlighting = false;
     }
-
 
     public void serialize(File file){
         try {
@@ -298,7 +318,7 @@ public class InkView extends View {
             case(MotionEvent.ACTION_DOWN):
                 penIsDown = true;
                 if (state == ERASING_STROKE){
-
+                    startErase();
                 }
                 else if (state == SELECTING){
 
@@ -311,7 +331,8 @@ public class InkView extends View {
             case(MotionEvent.ACTION_MOVE):
                 if (!penIsDown) break; // hack to prevent invalid ACTION_MOVE events
                 if (state == ERASING_STROKE){
-
+                    Log.d("DATA", "About to call midErase");
+                    midErase(x, y);
                 }
                 else if (state == SELECTING){
 
@@ -323,7 +344,7 @@ public class InkView extends View {
 
             case(MotionEvent.ACTION_UP):
                 if (state == ERASING_STROKE){
-
+                    endErase(x, y);
                 }
                 else if (state == SELECTING){
 
