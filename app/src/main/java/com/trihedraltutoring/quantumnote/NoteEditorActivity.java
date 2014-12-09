@@ -94,14 +94,15 @@ public class NoteEditorActivity extends ListActivity implements Observer,
     private NoteItem note;
     AudioRecorder audio;
     int playbackIndex = 0;
-    boolean prevNavVisible = false;
     MotionEvent prevMotionEvent;
-    private Button pieControl;
     ImageView iv;
     List<Sound> sounds;
     static final int REQUEST_IMAGE_CAPTURE = 1;
     File noteRoot;
     File soundsDir;
+    Handler dThandler;
+    boolean blinkRecord = true;
+    MenuItem recMenuItem;
 
 
 
@@ -146,6 +147,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         setContentView(R.layout.activity_note_editor);
 
         // Initializations //
+        dThandler = new Handler();
         Intent intent = this.getIntent();
         note = new NoteItem();
         note.setKey(intent.getStringExtra("key"));
@@ -270,9 +272,9 @@ public class NoteEditorActivity extends ListActivity implements Observer,
 
     private void saveNote() {
         String textStr = noteText.getText().toString();
+        if (textStr.equals("")) textStr = "Untitled Note";
 
         // Serialize inkview //
-        Log.d("DATA", "Aboot to serialize");
         inkView.serialize(new File(noteRoot, "inkView"));
 
         // Serialize sounds //
@@ -440,6 +442,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         }
 
         if (id == R.id.action_record) {
+            recMenuItem = item;
             recClicked(inkView);
         }
 
@@ -458,8 +461,16 @@ public class NoteEditorActivity extends ListActivity implements Observer,
             mSelectedColorCal0 = color;
             Log.d("DATA", "Color: " + color);
             inkView.setColor(Color.alpha(color), Color.red(color),Color.green(color),Color.blue(color));
-            if (Color.alpha(color)<255) inkView.setWidth(40);
-            else inkView.setWidth(4);
+            if (Color.alpha(color)<255){
+                inkView.setWidth(40);
+                inkView.setHighlightWidth(60);
+                inkView.setHighlightColor(160, 255, 0, 0);
+            }
+            else {
+                inkView.setWidth(4);
+                inkView.setHighlightWidth(8);
+                inkView.setHighlightColor(255, 255, 0, 0);
+            }
         }
     };
 
@@ -549,6 +560,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
             File file = new File(soundsDir, sounds.size() + ".mp3");
             audio.startRecording(file);
             sounds.add(new Sound(System.currentTimeMillis()));
+            dThandler.postDelayed(secPassed, 1); // start recursive calls
         }
     }
 
@@ -595,4 +607,25 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         }
     }
 
+
+    ////Recursive class called once per second ////
+    private Runnable secPassed = new Runnable() {
+        @Override
+        public void run() {
+            if (blinkRecord)
+                recMenuItem.setIcon(R.drawable.ic_action_record_blink);
+            else
+                recMenuItem.setIcon(R.drawable.ic_action_record);
+
+            blinkRecord = !blinkRecord;
+
+            if (audio.getState() != AudioRecorder.RECORDING)
+                recMenuItem.setIcon(R.drawable.ic_action_record);
+            else
+                dThandler.postDelayed(secPassed, 1000);
+        }
+    };
+
 }
+
+

@@ -91,6 +91,7 @@ public class MyActivityDrawer extends ListActivity {
                             // User clicked delete
                             NoteItem note = notesList.get(currentNoteId);
                             datasource.remove(note);
+
                             refreshDisplay();
                         }
                     })
@@ -174,15 +175,10 @@ public class MyActivityDrawer extends ListActivity {
 
     private void createNote() {
         NoteItem note = NoteItem.getNew();
-        Log.d("DATA", "A one,");
         Intent intent = new Intent(this, NoteEditorActivity.class);
-        Log.d("DATA", "A two-hoo,");
         intent.putExtra("key", note.getKey());
-        Log.d("DATA", "A three,");
         intent.putExtra("text", note.getText());
-        Log.d("DATA", "... A four,");
         startActivityForResult(intent, EDITOR_ACTIVITY_REQUEST);
-        Log.d("DATA", "... and  A five,");
     }
 
     @Override
