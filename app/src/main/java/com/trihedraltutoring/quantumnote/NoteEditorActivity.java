@@ -236,6 +236,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
             });
         }
 
+/** NAVDRAWER STUFF
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
@@ -244,7 +245,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
-
+**/
         // Create onGlobalLayout to be called after inkView is drawn ///
         ViewTreeObserver vto = inkView.getViewTreeObserver();
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -602,9 +603,11 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         }
     }
 
+
     /**
      * Called for all touch events //
      */
+/** NAVDRAWER STUFF
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public boolean dispatchTouchEvent(MotionEvent motionEvent) {
@@ -623,7 +626,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
 
         return super.dispatchTouchEvent(motionEvent); // returns whether event was handled
     }
-
+**/
     private static class Sound implements Serializable{
         final long serialVersionUID = 1L;
         public long startTime;
