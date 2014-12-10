@@ -24,6 +24,8 @@
     <string name="cancel">Cancel</string>
     <string name="button_label">OK</string>
 
+    <string name="action_settings2">Play</string>
+
 
     <string name="pref_name">Pick a color</string>
     <string name="pref_summary">DialogPreference with Color Picker.</string>

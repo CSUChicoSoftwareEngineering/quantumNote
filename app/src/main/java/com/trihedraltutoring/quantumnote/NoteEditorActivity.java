@@ -406,7 +406,6 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
 
-        actionBar.setTitle(note.getText());
         if(note.getText().length() == 0)
         {
             actionBar.setTitle("Untitled Note");
@@ -452,6 +451,10 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         if (id == R.id.action_camera) {
             Intent a = new Intent(NoteEditorActivity.this, OpenCamera.class);
             startActivity(a);
+        }
+
+        if(id == R.id.action_settings2) {
+            playAll();
         }
 
         return super.onOptionsItemSelected(item);

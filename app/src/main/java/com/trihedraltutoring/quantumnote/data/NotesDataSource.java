@@ -30,16 +30,15 @@ public class NotesDataSource {
             note.setText((String) notesMap.get(key));
             noteList.add(note);
         }
-        //NoteItem note = NoteItem.getNew();
-        //noteList.add(note);
-        return noteList;
 
+        return noteList;
     }
 
     public boolean update(NoteItem note) {
         SharedPreferences.Editor editor = notePrefs.edit();
         editor.putString(note.getKey(), note.getText());
         editor.commit();
+
         return true;
     }
 
