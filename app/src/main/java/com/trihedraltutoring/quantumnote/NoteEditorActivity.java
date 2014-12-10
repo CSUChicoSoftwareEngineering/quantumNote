@@ -232,7 +232,9 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                                 Toast.LENGTH_SHORT).show();
                         //openCam.onCreate(savedInstanceState);
                         arcMenu.setVisibility(View.VISIBLE);
+                        arcMenu.requestFocus();
                         arcMenu.performClick();
+                        noteText.setCursorVisible(false);
                     } else if(position == 3) {
 
                         Toast.makeText(NoteEditorActivity.this, "Erase",
