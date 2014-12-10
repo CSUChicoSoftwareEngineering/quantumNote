@@ -86,7 +86,7 @@
             android:src="@drawable/pie"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="end|top"
+            android:layout_gravity="end|bottom"
             android:paddingRight="0dp"
             android:focusable="true"/>
         <!-- Remove this line to show pie button -->
@@ -106,7 +106,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/play"
             android:id="@+id/playButton"
-            android:layout_gravity="end|bottom"
+            android:layout_gravity="right|top"
             android:onClick="playClicked"
             android:background="@null"
             android:clickable="true"/>

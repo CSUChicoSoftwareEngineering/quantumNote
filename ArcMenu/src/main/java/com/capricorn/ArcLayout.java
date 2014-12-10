@@ -54,7 +54,7 @@ public class ArcLayout extends ViewGroup {
 
     public static final float DEFAULT_FROM_DEGREES = 10.0f;
 
-    public static final float DEFAULT_TO_DEGREES = 260.0f;
+    public static final float DEFAULT_TO_DEGREES = 270.0f;
 
     private float mFromDegrees = DEFAULT_FROM_DEGREES;
 
