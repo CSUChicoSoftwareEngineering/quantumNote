@@ -548,12 +548,9 @@ public class NoteEditorActivity extends ListActivity implements Observer,
     @Override
     public void update(Observable observable, Object data) {
         ImageButton playB = (ImageButton) findViewById(R.id.playButton);
-        Button recordB = (Button) findViewById(R.id.recButton);
-        if (audio.getState() == AudioRecorder.PLAYING) playB.setImageResource(R.drawable.pause);
-        else if (audio.getState() == AudioRecorder.RECORDING) recordB.setText("Stop");
+        if (audio.getState() == AudioRecorder.PLAYING) playB.setVisibility(View.VISIBLE);
         else {
-            playB.setImageResource(R.drawable.play);
-            recordB.setText("Rec");
+            playB.setVisibility(View.GONE);
             if (audio.getPrevState() == AudioRecorder.PLAYING){
                 playAll(); // play next audio file
             }

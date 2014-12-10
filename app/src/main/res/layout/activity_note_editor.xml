@@ -104,12 +104,13 @@
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/play"
+            android:src="@drawable/pause"
             android:id="@+id/playButton"
             android:layout_gravity="right|top"
             android:onClick="playClicked"
             android:background="@null"
-            android:clickable="true"/>
+            android:clickable="true"
+            android:visibility="gone"/>
 
         <!--<com.capricorn.ArcMenu-->
         <!--android:id="@+id/arc_menu_2"-->
