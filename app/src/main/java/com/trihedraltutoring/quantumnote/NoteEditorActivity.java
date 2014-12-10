@@ -89,7 +89,6 @@ public class NoteEditorActivity extends ListActivity implements Observer,
      */
     private CharSequence mTitle;
     InkView inkView;
-    OpenCamera openCam;
     NoteText noteText;
     private NoteItem note;
     AudioRecorder audio;
@@ -97,12 +96,13 @@ public class NoteEditorActivity extends ListActivity implements Observer,
     MotionEvent prevMotionEvent;
     ImageView iv;
     List<Sound> sounds;
-    static final int REQUEST_IMAGE_CAPTURE = 1;
     File noteRoot;
     File soundsDir;
     Handler dThandler;
     boolean blinkRecord = true;
     MenuItem recMenuItem;
+    //OpenCamera openCam;
+    //static final int REQUEST_IMAGE_CAPTURE = 1;
 
 
 
@@ -166,9 +166,11 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         initArcMenu(arcMenu, ITEM_DRAWABLES);
         final RayMenu rayMenu = (RayMenu) findViewById(R.id.ray_menu);
         iv = (ImageView) findViewById(R.id.imageView2);
+        inkView.requestFocus();
+        noteText.setFocusableInTouchMode(true);
+        noteText.setFocusable(true);
 
         // Deserialize inkView //
-        inkView.requestFocus();
         inkView.deserialize(new File(noteRoot, "inkView"));
         noteText.setCursorVisible(false);
         arcMenu.setVisibility(View.GONE);
@@ -280,6 +282,10 @@ public class NoteEditorActivity extends ListActivity implements Observer,
     }
 
     private void saveNote() {
+        if (audio.getState() == AudioRecorder.PLAYING)
+            audio.stopPlaying();
+        else if (audio.getState() == AudioRecorder.RECORDING)
+            audio.stopRecording();
         String textStr = noteText.getText().toString();
         if (textStr.equals("")) textStr = "Untitled Note";
 
@@ -456,7 +462,8 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         }
 
         if(id == R.id.action_settings2) {
-            playAll();
+            if (audio.getState() == AudioRecorder.STOPPED)
+                playNext();
         }
 
         return super.onOptionsItemSelected(item);
@@ -529,11 +536,13 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         }
     }
 
-    public void playAll(){
-        Log.d("INFO", "Playing new audio file");
+    public void playNext(){
         if (playbackIndex < sounds.size()) {
+            // play current audio file //
             File file = new File(soundsDir, playbackIndex + ".mp3");
             audio.startPlaying(file);
+            // highlight stokes during current audio //
+            Log.d("DATA", "Attempting to start highlight for this audio file");
             inkView.startDynamicHighlighting(sounds.get(playbackIndex).startTime,
                     sounds.get(playbackIndex).endTime);
             playbackIndex++;
@@ -547,12 +556,14 @@ public class NoteEditorActivity extends ListActivity implements Observer,
      */
     @Override
     public void update(Observable observable, Object data) {
-        ImageButton playB = (ImageButton) findViewById(R.id.playButton);
-        if (audio.getState() == AudioRecorder.PLAYING) playB.setVisibility(View.VISIBLE);
+        ImageButton stopB = (ImageButton) findViewById(R.id.stopButton);
+        if (audio.getState() == AudioRecorder.PLAYING){
+            stopB.setVisibility(View.VISIBLE);
+        }
         else {
-            playB.setVisibility(View.GONE);
+            stopB.setVisibility(View.GONE);
             if (audio.getPrevState() == AudioRecorder.PLAYING){
-                playAll(); // play next audio file
+                playNext(); // play next audio file
             }
         }
     }
@@ -570,13 +581,14 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         }
     }
 
-    public void playClicked(View v){
+    public void stopClicked(View view){
         if (audio.getState() == AudioRecorder.PLAYING){
+            playbackIndex = sounds.size(); // skip to end of sound list
             audio.stopPlaying();
             inkView.stopDynamicHighlighting();
         }
         else if (audio.getState() == AudioRecorder.STOPPED){
-            playAll();
+            playNext();
         }
     }
 
@@ -584,13 +596,14 @@ public class NoteEditorActivity extends ListActivity implements Observer,
     /**
      * Called for all touch events //
      */
-/** NAVDRAWER STUFF
+
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public boolean dispatchTouchEvent(MotionEvent motionEvent) {
         if (noteText.requestFocus() && inkView.state == inkView.INACTIVE){
             noteText.dispatchTouchEvent(motionEvent);
         }
+        /**NAVDRAWER STUFF
         if (motionEvent.getAction() == MotionEvent.ACTION_MOVE){
             // hack to prevent drawing when opening Nav Frame //
             if(mNavigationDrawerFragment.isVisible() && !prevNavVisible
@@ -600,10 +613,10 @@ public class NoteEditorActivity extends ListActivity implements Observer,
             }
         }
         prevNavVisible = mNavigationDrawerFragment.isVisible();
-
+        **/
         return super.dispatchTouchEvent(motionEvent); // returns whether event was handled
     }
-**/
+
     private static class Sound implements Serializable{
         final long serialVersionUID = 1L;
         public long startTime;
@@ -614,7 +627,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
     }
 
 
-    ////Recursive class called once per second ////
+    ////Recursive class called twice per second ////
     private Runnable secPassed = new Runnable() {
         @Override
         public void run() {
@@ -628,7 +641,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
             if (audio.getState() != AudioRecorder.RECORDING)
                 recMenuItem.setIcon(R.drawable.ic_action_record);
             else
-                dThandler.postDelayed(secPassed, 1000);
+                dThandler.postDelayed(secPassed, 500);
         }
     };
 

@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.util.AttributeSet;
+import android.widget.ScrollView;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,7 +27,7 @@ import java.lang.Math;
 /**
  * Main View object users interact with
  */
-public class InkView extends View {
+public class InkView extends ScrollView {
     private List<Stroke> strokes;
     private Paint currentPaint;
     private Paint dynamichighlightPaint;
@@ -214,27 +215,6 @@ public class InkView extends View {
 
     }
 
-    /**
-     * Sets time range for and begins dynamic highlighting
-     * @param t0 time to start dynamic highlighting
-     * @param t time to end dynamic highlighting
-     */
-    public void startDynamicHighlighting(long t0, long t){
-        if (strokes.size() == 0) return;
-        dynamicHighlighting = true;
-        markTf = t;
-        // locate index of first stroke in t-t0 //
-        for(int i=0; i<strokes.size(); i++){
-            if (strokes.get(i).time >= t0){
-                litStroke = i;
-                break;
-            }
-        }
-        // Schedule 1st call to recursive highlight function //
-        long dt = strokes.get(litStroke).time - t0;
-        highLightHandler.postDelayed(highLight, dt);
-    }
-
     public void stopDynamicHighlighting(){
         dynamicHighlighting = false;
     }
@@ -300,7 +280,7 @@ public class InkView extends View {
             Log.e("ERROR", "Error loading strokes: " + e);
         }
     }
-
+    // part of a hack to allow app to use a navDrawer //
     public void deleteLastStroke(){
         int size = strokes.size();
         Stroke stroke = strokes.get( strokes.size()-1 );
@@ -311,6 +291,7 @@ public class InkView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
+        Log.d("DATA", "You touched ink");
         if (state == INACTIVE) return true;
 
         float x = motionEvent.getX();
@@ -360,6 +341,28 @@ public class InkView extends View {
     }
 
     /**
+     * Sets time range for and begins dynamic highlighting
+     * @param t0 time to start dynamic highlighting
+     * @param t time to end dynamic highlighting
+     */
+    public void startDynamicHighlighting(long t0, long t){
+        if (strokes.size() == 0) return;
+        dynamicHighlighting = true;
+        markTf = t;
+        // locate index of first stroke in t-t0 //
+        for(int i=0; i<strokes.size(); i++){
+            if (strokes.get(i).time >= t0 && strokes.get(i).time < t){
+                Log.d("DATA", "Found first stroke to highlight");
+                litStroke = i;
+                // Schedule 1st call to recursive highlight function //
+                long dt = strokes.get(litStroke).time - t0;
+                highLightHandler.postDelayed(highLight, dt);
+                break;
+            }
+        }
+    }
+
+    /**
      * Recursive object calls itself to highlight each stroke in sequence
      */
     private Runnable highLight = new Runnable() {
@@ -386,10 +389,13 @@ public class InkView extends View {
                     // end highlighting if this stroke goes until end of highlight period //
                     dynamicHighlighting = false;
                 }
+                Log.d("DATA", "highlight time: " + dt);
                 litStroke++;
                 highLightHandler.postDelayed(highLight, dt);
             }
             invalidate();
         }
     };
+
+
 }

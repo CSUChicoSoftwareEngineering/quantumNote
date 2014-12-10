@@ -2,6 +2,7 @@ package com.trihedraltutoring.quantumnote;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.EditText;
 
@@ -17,7 +18,7 @@ public class NoteText extends EditText{
 
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
-
+        Log.d("DATA", "You touched text");
         // Do fancy stuff here //
 
         return super.onTouchEvent(motionEvent);

@@ -16,23 +16,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
-<!--
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/camera"
-            android:id="@+id/camera"
-            android:layout_gravity="center_horizontal|bottom"
-            android:clickable="true"
-            android:onClick="openCamera"
-            android:background="#0078ff00" />
--->
-
         <ImageView
             android:layout_width="143dp"
             android:layout_height="143dp"
             android:id="@+id/imageView"
-            android:layout_gravity="bottom|right"
+            android:layout_gravity="bottom|end"
             android:clickable="true"
             android:focusable="true"
             android:focusableInTouchMode="true"
@@ -42,26 +30,26 @@
             android:id="@android:id/list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="left|top" />
+            android:layout_gravity="start|top" />
 
 
-            <view
-                class="com.trihedraltutoring.quantumnote.NoteText"
-                android:id="@+id/noteText"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:singleLine="false"
-                android:lines="25"
-                android:minLines="10"
-                android:focusableInTouchMode="true"
-                android:focusable="true"
-                android:inputType="textMultiLine|textAutoCorrect"
-                android:autoText="true"
-                android:cursorVisible="true"
-                android:textIsSelectable="true"
-                android:gravity="top|left"
-                android:scrollbars="vertical"
-                android:background="@android:drawable/editbox_background_normal"/>
+        <view
+            class="com.trihedraltutoring.quantumnote.NoteText"
+            android:id="@+id/noteText"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:singleLine="false"
+            android:lines="25"
+            android:minLines="10"
+            android:focusableInTouchMode="true"
+            android:focusable="true"
+            android:inputType="textMultiLine|textAutoCorrect"
+            android:autoText="true"
+            android:cursorVisible="true"
+            android:textIsSelectable="true"
+            android:gravity="top|start"
+            android:scrollbars="vertical"
+            android:background="@android:drawable/editbox_background_normal"/>
 
         <view
             android:layout_width="match_parent"
@@ -79,7 +67,7 @@
             android:layout_height="60dp"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
-            android:layout_gravity="right|bottom"/>
+            android:layout_gravity="end|bottom"/>
 
         <com.capricorn.ArcMenu
             android:id="@+id/arc_menu"
@@ -87,27 +75,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end|bottom"
-            android:paddingRight="0dp"
+            android:paddingEnd="0dp"
             android:focusable="true"/>
-        <!-- Remove this line to show pie button -->
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Rec"
-            android:id="@+id/recButton"
-            android:layout_gravity="end|top"
-            android:onClick="recClicked"
-            android:clickable="true"
-            android:visibility="gone"/>
 
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/pause"
-            android:id="@+id/playButton"
-            android:layout_gravity="right|top"
-            android:onClick="playClicked"
+            android:id="@+id/stopButton"
+            android:layout_gravity="end|top"
+            android:onClick="stopClicked"
             android:background="@null"
             android:clickable="true"
             android:visibility="gone"/>
