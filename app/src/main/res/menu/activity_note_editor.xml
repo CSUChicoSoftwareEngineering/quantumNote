@@ -1,6 +1,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MyActivityDrawer" >
+    <item android:id="@+id/action_gallery"
+        android:title="Gallery"
+        android:showAsAction="always|withText"
+        android:icon="@drawable/ic_action_gallery"/>
     <item android:id="@+id/action_camera"
         android:title="@string/action_camera"
         android:showAsAction="always|withText"

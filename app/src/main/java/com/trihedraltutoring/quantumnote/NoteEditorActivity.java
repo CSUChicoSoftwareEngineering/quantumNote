@@ -15,6 +15,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -457,8 +458,30 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         }
 
         if (id == R.id.action_camera) {
-            Intent a = new Intent(NoteEditorActivity.this, OpenCamera.class);
-            startActivity(a);
+            Toast.makeText(NoteEditorActivity.this, "Camera",
+                    Toast.LENGTH_SHORT).show();
+
+
+
+            Intent a = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            startActivityForResult(a, 0);
+            //startActivityForResult(intent, 0);
+
+//        Intent getintent = getIntent();
+//
+//        if(getintent.hasExtra("byteArray")) {
+//            ImageView previewThumbnail = new ImageView(this);
+//            Bitmap b = BitmapFactory.decodeByteArray(
+//                    getIntent().getByteArrayExtra("byteArray"), 0, getIntent().getByteArrayExtra("byteArray").length);
+//            previewThumbnail.setImageBitmap(b);
+//            iv = (ImageView) findViewById(R.id.imageView2);
+//            iv.setImageBitmap(b);
+        }
+
+        if (id == R.id.action_gallery) {
+            Intent b = new Intent(Intent.ACTION_VIEW, Uri.parse(
+                    "content://media/internal/images/media"));
+            startActivity(b);
         }
 
         if(id == R.id.action_settings2) {
