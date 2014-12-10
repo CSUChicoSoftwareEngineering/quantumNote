@@ -77,8 +77,8 @@ public class NoteEditorActivity extends ListActivity implements Observer,
     private int mSelectedColorCal0 = 0;
     int mLastPosition;
 
-    private static final int[] ITEM_DRAWABLES = { R.drawable.tri, R.drawable.sq, R.drawable.cir, R.drawable.line, R.drawable.eraser};
-    private static final int[] RAY_DRAWABLES = {R.drawable.texticon, R.drawable.pencil, R.drawable.shapes, R.drawable.blank, R.drawable.blank};
+    private static final int[] ITEM_DRAWABLES = { R.drawable.tri, R.drawable.sq, R.drawable.cir, R.drawable.line};
+    private static final int[] RAY_DRAWABLES = {R.drawable.texticon, R.drawable.pencil, R.drawable.shapes, R.drawable.eraser, R.drawable.blank};
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -233,6 +233,13 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                         //openCam.onCreate(savedInstanceState);
                         arcMenu.setVisibility(View.VISIBLE);
                         arcMenu.performClick();
+                    } else if(position == 3) {
+
+                        Toast.makeText(NoteEditorActivity.this, "Erase",
+                                Toast.LENGTH_SHORT).show();
+                        inkView.state = InkView.ERASING_STROKE;
+                        ImageView currentTool = (ImageView) findViewById(R.id.control_hint);
+                        currentTool.setImageResource(R.drawable.eraser);
                     }
                 }
             });
@@ -340,11 +347,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                         currentTool.setImageResource(R.drawable.line);
 
                     } else if (position == 4) {
-                        Toast.makeText(NoteEditorActivity.this, "Erase",
-                                Toast.LENGTH_SHORT).show();
-                        inkView.state = InkView.ERASING_STROKE;
-                        ImageView currentTool = (ImageView) findViewById(R.id.control_hint);
-                        currentTool.setImageResource(R.drawable.eraser);
+
                     }
                 }
             });
@@ -447,7 +450,8 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         }
 
         if (id == R.id.action_camera) {
-
+            Intent a = new Intent(NoteEditorActivity.this, OpenCamera.class);
+            startActivity(a);
         }
 
         return super.onOptionsItemSelected(item);

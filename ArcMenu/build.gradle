@@ -1,8 +1,7 @@
 apply plugin: 'com.android.library'
-
 android {
-    compileSdkVersion 20
-    buildToolsVersion "20"
+    compileSdkVersion 19
+    buildToolsVersion '21.0.0'
 
     defaultConfig {
         applicationId "com.capricorn"
@@ -14,4 +13,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+}
+
+dependencies {
 }

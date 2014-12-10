@@ -87,7 +87,7 @@ Available units are: px (pixels), dp (density-independent pixels), sp (scaled pi
 in (inches), mm (millimeters).
           @attr name com.capricorn:childSize
         */
-        public static final int ArcLayout_childSize = 0;
+        public static int ArcLayout_childSize = 0;
         /**
           <p>This symbol is the offset where the {@link com.capricorn.R.attr#fromDegrees}
           attribute's value can be found in the {@link #ArcLayout} array.
@@ -98,7 +98,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 <p>May be a floating point value, such as "<code>1.2</code>".
           @attr name com.capricorn:fromDegrees
         */
-        public static final int ArcLayout_fromDegrees = 1;
+        public static int ArcLayout_fromDegrees = 1;
         /**
           <p>This symbol is the offset where the {@link com.capricorn.R.attr#toDegrees}
           attribute's value can be found in the {@link #ArcLayout} array.
@@ -109,7 +109,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 <p>May be a floating point value, such as "<code>1.2</code>".
           @attr name com.capricorn:toDegrees
         */
-        public static final int ArcLayout_toDegrees = 2;
+        public static int ArcLayout_toDegrees = 2;
         /** Attributes that can be used with a ArcMenu.
            <p>Includes the following attributes:</p>
            <table>
@@ -139,7 +139,7 @@ Available units are: px (pixels), dp (density-independent pixels), sp (scaled pi
 in (inches), mm (millimeters).
           @attr name com.capricorn:childSize
         */
-        public static final int ArcMenu_childSize = 0;
+        public static int ArcMenu_childSize = 0;
         /**
           <p>This symbol is the offset where the {@link com.capricorn.R.attr#fromDegrees}
           attribute's value can be found in the {@link #ArcMenu} array.
@@ -150,7 +150,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 <p>May be a floating point value, such as "<code>1.2</code>".
           @attr name com.capricorn:fromDegrees
         */
-        public static final int ArcMenu_fromDegrees = 1;
+        public static int ArcMenu_fromDegrees = 1;
         /**
           <p>This symbol is the offset where the {@link com.capricorn.R.attr#toDegrees}
           attribute's value can be found in the {@link #ArcMenu} array.
@@ -161,7 +161,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 <p>May be a floating point value, such as "<code>1.2</code>".
           @attr name com.capricorn:toDegrees
         */
-        public static final int ArcMenu_toDegrees = 2;
+        public static int ArcMenu_toDegrees = 2;
         /** Attributes that can be used with a RayLayout.
            <p>Includes the following attributes:</p>
            <table>
@@ -190,6 +190,6 @@ theme attribute (in the form
 containing a value of this type.
           @attr name com.capricorn:leftHolderWidth
         */
-        public static final int RayLayout_leftHolderWidth = 0;
+        public static int RayLayout_leftHolderWidth = 0;
     };
 }
