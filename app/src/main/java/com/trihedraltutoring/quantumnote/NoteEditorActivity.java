@@ -78,8 +78,15 @@ public class NoteEditorActivity extends ListActivity implements Observer,
     private int mSelectedColorCal0 = 0;
     int mLastPosition;
 
-    private static final int[] ITEM_DRAWABLES = { R.drawable.tri, R.drawable.sq, R.drawable.cir, R.drawable.line};
-    private static final int[] RAY_DRAWABLES = {R.drawable.texticon, R.drawable.pencil, R.drawable.shapes, R.drawable.eraser, R.drawable.blank};
+    private static final int[] ITEM_DRAWABLES = { R.drawable.tri,
+            R.drawable.sq,
+            R.drawable.cir,
+            R.drawable.line};
+    private static final int[] RAY_DRAWABLES = {R.drawable.texticon,
+            R.drawable.pencil,
+            R.drawable.shapes,
+            R.drawable.eraser,
+            R.drawable.blank};
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -90,7 +97,6 @@ public class NoteEditorActivity extends ListActivity implements Observer,
      */
     private CharSequence mTitle;
     InkView inkView;
-    NoteText noteText;
     private NoteItem note;
     AudioRecorder audio;
     int playbackIndex = 0;
@@ -162,18 +168,17 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         sounds = new LinkedList();
         prevMotionEvent = MotionEvent.obtain(0,0,MotionEvent.ACTION_UP,0,0,0);
         inkView = (InkView) findViewById(R.id.inkView); // get inkView defined in xml
-        noteText = (NoteText) findViewById(R.id.noteText);
         final ArcMenu arcMenu = (ArcMenu) findViewById(R.id.arc_menu);
         initArcMenu(arcMenu, ITEM_DRAWABLES);
         final RayMenu rayMenu = (RayMenu) findViewById(R.id.ray_menu);
         iv = (ImageView) findViewById(R.id.imageView2);
         inkView.requestFocus();
-        noteText.setFocusableInTouchMode(true);
-        noteText.setFocusable(true);
+        inkView.setFocusableInTouchMode(true);
+        inkView.setFocusable(true);
 
         // Deserialize inkView //
         inkView.deserialize(new File(noteRoot, "inkView"));
-        noteText.setCursorVisible(false);
+        inkView.setCursorVisible(false);
         arcMenu.setVisibility(View.GONE);
 
         // Deserialize sounds //
@@ -192,9 +197,8 @@ public class NoteEditorActivity extends ListActivity implements Observer,
             Log.e("ERROR", "Error loading sounds " + e);
         }
 
-        noteText.setText(note.getText());
-        noteText.setSelection(note.getText().length());
-
+        inkView.setText(note.getText());
+        inkView.setSelection(note.getText().length());
         final int itemCount = RAY_DRAWABLES.length;
         for(int i = 0; i < itemCount; i++) {
             ImageView item = new ImageView(this);
@@ -208,24 +212,25 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                 public void onClick(View v) {
                     arcMenu.setVisibility(View.GONE);
                     if (position == 0) {
-                        inkView.clearFocus();
-                        noteText.setCursorVisible(true);
-                        noteText.requestFocus();
-                        inkView.state = inkView.INACTIVE;
+                        inkView.setCursorVisible(true);
+                        inkView.state = inkView.TYPING;
                         Toast.makeText(NoteEditorActivity.this, "Text",
                                 Toast.LENGTH_SHORT).show();
-                        ((InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE)).toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+                        ((InputMethodManager)getSystemService(
+                                Context.INPUT_METHOD_SERVICE)).toggleSoftInput(
+                                InputMethodManager.SHOW_FORCED,
+                                InputMethodManager.HIDE_IMPLICIT_ONLY);
                         ImageView currentTool = (ImageView) findViewById(R.id.control_hint);
                         currentTool.setImageResource(R.drawable.texticon);
 
                     } else if (position == 1) {
-                        ((InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(noteText.getWindowToken(), 0);
-                        noteText.clearFocus();
-                        inkView.requestFocus();
+                        ((InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(inkView.getWindowToken(), 0);
+
                         inkView.state = InkView.DRAWING;
                         Toast.makeText(NoteEditorActivity.this, "Ink",
                                 Toast.LENGTH_SHORT).show();
-                        noteText.setCursorVisible(false);
+
+                        inkView.setCursorVisible(false);
                         ImageView currentTool = (ImageView) findViewById(R.id.control_hint);
                         currentTool.setImageResource(R.drawable.pencil);
 
@@ -237,7 +242,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                         arcMenu.setVisibility(View.VISIBLE);
                         arcMenu.requestFocus();
                         arcMenu.performClick();
-                        noteText.setCursorVisible(false);
+                        inkView.setCursorVisible(false);
                     } else if(position == 3) {
 
                         Toast.makeText(NoteEditorActivity.this, "Erase",
@@ -287,7 +292,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
             audio.stopPlaying();
         else if (audio.getState() == AudioRecorder.RECORDING)
             audio.stopRecording();
-        String textStr = noteText.getText().toString();
+        String textStr = inkView.getText().toString();
         if (textStr.equals("")) textStr = "Untitled Note";
 
         // Serialize inkview //
@@ -620,13 +625,13 @@ public class NoteEditorActivity extends ListActivity implements Observer,
      * Called for all touch events //
      */
 
+    /**NAVDRAWER STUFF
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public boolean dispatchTouchEvent(MotionEvent motionEvent) {
         if (noteText.requestFocus() && inkView.state == inkView.INACTIVE){
             noteText.dispatchTouchEvent(motionEvent);
         }
-        /**NAVDRAWER STUFF
         if (motionEvent.getAction() == MotionEvent.ACTION_MOVE){
             // hack to prevent drawing when opening Nav Frame //
             if(mNavigationDrawerFragment.isVisible() && !prevNavVisible
@@ -636,9 +641,9 @@ public class NoteEditorActivity extends ListActivity implements Observer,
             }
         }
         prevNavVisible = mNavigationDrawerFragment.isVisible();
-        **/
         return super.dispatchTouchEvent(motionEvent); // returns whether event was handled
     }
+     **/
 
     private static class Sound implements Serializable{
         final long serialVersionUID = 1L;

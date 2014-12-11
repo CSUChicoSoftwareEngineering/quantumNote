@@ -9,9 +9,8 @@ import android.graphics.RectF;
 import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.View;
 import android.util.AttributeSet;
-import android.widget.ScrollView;
+import android.widget.EditText;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,7 +26,7 @@ import java.lang.Math;
 /**
  * Main View object users interact with
  */
-public class InkView extends ScrollView {
+public class InkView extends EditText {
     private List<Stroke> strokes;
     private Paint currentPaint;
     private Paint dynamichighlightPaint;
@@ -43,7 +42,7 @@ public class InkView extends ScrollView {
     public int state = 1;
     transient Context context;
     private static final int STROKE_ATTRIBUTES = 3; // for serialization extensibility
-    public static final int INACTIVE = 0;
+    public static final int TYPING = 0;
     public static final int DRAWING = 1;
     public static final int DRAWING_RECT = 2;
     public static final int DRAWING_TRI = 3;
@@ -54,6 +53,7 @@ public class InkView extends ScrollView {
 
     public InkView(Context c, AttributeSet attributeSet) {
         super(c, attributeSet);
+        setSelection(0);
         context = c;
         strokes = new LinkedList();
         highLightHandler = new Handler();
@@ -76,12 +76,13 @@ public class InkView extends ScrollView {
         for(Stroke s : strokes) {
             canvas.drawPath(s, s.brush);
         }
+        super.onDraw(canvas);
     }
 
     /**
      * Determine and save location of this InkView on the screen
      */
-    public void setOffset() {
+    public void determineOffset() {
         int[] v = new int[2];
         getLocationOnScreen(v);
         xOffset = v[0];
@@ -219,6 +220,20 @@ public class InkView extends ScrollView {
         dynamicHighlighting = false;
     }
 
+    public String getTitle() {
+        String title;
+        String text = this.getText().toString();
+        if (text.equals("")) title = "Untitled Note";
+        else{
+            int i = 0;
+            for ( ; i<text.length(); i++) {
+                if (text.charAt(i) == '\n') break;
+            }
+        title = text.substring(0,i);
+        }
+        return title;
+    }
+
     public void serialize(File file){
         try {
             FileOutputStream fileOut = new FileOutputStream(file);
@@ -284,7 +299,7 @@ public class InkView extends ScrollView {
     public void deleteLastStroke(){
         int size = strokes.size();
         Stroke stroke = strokes.get( strokes.size()-1 );
-        if (size > 0 && stroke.points.get(0).x < 50 && state != INACTIVE) {
+        if (size > 0 && stroke.points.get(0).x < 50 && state != TYPING) {
             strokes.remove( strokes.size()-1 );
         }
     }
@@ -292,7 +307,7 @@ public class InkView extends ScrollView {
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
         Log.d("DATA", "You touched ink");
-        if (state == INACTIVE) return true;
+        if (state == TYPING) super.onTouchEvent(motionEvent);
 
         float x = motionEvent.getX();
         float y = motionEvent.getY();
