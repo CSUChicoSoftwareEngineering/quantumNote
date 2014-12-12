@@ -5,20 +5,20 @@ import android.util.Log;
 /**
  * x,y coordinate floats
  */
-public class Point {
+public class Fpoint {
     public float x, y;
 
-    public Point(float x1, float y1){
+    public Fpoint(float x1, float y1){
         x = x1;
         y = y1;
     }
 
-    public Point(Point p){
+    public Fpoint(Fpoint p){
         x = p.x;
         y = p.y;
     }
 
-    public float distanceTo(Point p){
+    public float distanceTo(Fpoint p){
         return (
                 (float)Math.sqrt(
                         Math.pow(x-p.x,2)+
@@ -26,13 +26,13 @@ public class Point {
         );
     }
 
-    public float cross2D(Point p){
+    public float cross2D(Fpoint p){
         //Log.d("DATA", "("+x+"-"+p.y+")*("+y+"-"+p.x+")");
         return (x-p.y)*(y-p.x);
     }
 
-    public Point minus(Point p){
-        return new Point(x-p.x, y-p.y);
+    public Fpoint minus(Fpoint p){
+        return new Fpoint(x-p.x, y-p.y);
     }
 
     public float magnitude(){
@@ -43,10 +43,10 @@ public class Point {
         );
     }
 
-    public float distanceToLine(Point p1, Point p2 ){
-        Point A = this.minus(p1);
+    public float distanceToLine(Fpoint p1, Fpoint p2 ){
+        Fpoint A = this.minus(p1);
         //Log.d("DATA", "Finger to point 1: " + A.magnitude());
-        Point B = this.minus(p2);
+        Fpoint B = this.minus(p2);
         //Log.d("DATA", "Finger to point 2: " + B.magnitude());
         float c = ( p1.minus(p2) ).magnitude();
         //Log.d("DATA", "Point 1 to point 2: " + c);

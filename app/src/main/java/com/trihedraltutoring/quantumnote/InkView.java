@@ -1,15 +1,21 @@
 package com.trihedraltutoring.quantumnote;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Point;
 import android.graphics.RectF;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.util.AttributeSet;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 import java.io.File;
@@ -31,16 +37,21 @@ public class InkView extends EditText {
     private Paint currentPaint;
     private Paint dynamichighlightPaint;
     private float xOffset, yOffset;
+    private int currentOrient;
+    private int oldOrient;
+    private float oldWidth = 1;
+    private float oldHeight = 1;
     private long markTf;
     private int litStroke;
     private int impactDist = 10;  // distance in pixels that qualifies as an impact
-    private Point prevPoint;
-    private Point newPoint;
+    private Fpoint prevPoint;
+    private Fpoint newPoint;
     private Handler highLightHandler;
     public boolean penIsDown = false; // public for frequent external access (recommended by Android)
     private boolean dynamicHighlighting = false;
     public int state = 1;
-    transient Context context;
+    private Context context;
+    private Configuration config;
     private static final int STROKE_ATTRIBUTES = 3; // for serialization extensibility
     public static final int TYPING = 0;
     public static final int DRAWING = 1;
@@ -53,10 +64,12 @@ public class InkView extends EditText {
 
     public InkView(Context c, AttributeSet attributeSet) {
         super(c, attributeSet);
-        setSelection(0);
         context = c;
+        config = context.getResources().getConfiguration();
+        //setSelection(0);
         strokes = new LinkedList();
         highLightHandler = new Handler();
+        currentOrient = config.orientation;
         // setup default paint objects //
         currentPaint = new Paint();
         currentPaint.setColor(Color.BLACK);
@@ -74,9 +87,15 @@ public class InkView extends EditText {
     @Override
     public void onDraw(Canvas canvas) {
         for(Stroke s : strokes) {
-            canvas.drawPath(s, s.brush);
+           canvas.drawPath(s, s.brush);
         }
         super.onDraw(canvas);
+    }
+
+    @Override
+    public void onConfigurationChanged (Configuration newConfig){
+        super.onConfigurationChanged(newConfig);
+
     }
 
     /**
@@ -183,7 +202,7 @@ public class InkView extends EditText {
         // for most recent stroke //
         Stroke s = strokes.get( strokes.size()-1 );
         // set final point //
-        s.points.add( new Point(x, y) );
+        s.points.add( new Fpoint(x, y) );
     }
 
 
@@ -191,18 +210,18 @@ public class InkView extends EditText {
     }
 
     private void midErase(float x, float y){
-        Point touchPoint = new Point(x, y);
-        prevPoint = new Point(999999, 999999);
+        Fpoint touchPoint = new Fpoint(x, y);
+        prevPoint = new Fpoint(999999, 999999);
 
         Iterator<Stroke> i = strokes.iterator();
         Log.d("DATA", "Number of strokes: " + strokes.size());
         while (i.hasNext()) {
             Log.d("DATA", "checking a stroke");
             Stroke str = i.next();
-            for (Point pnt : str.points) {
+            for (Fpoint pnt : str.points) {
                 if (touchPoint.distanceToLine(pnt, prevPoint) < impactDist) {
-                    Log.d("DATA", "midErase says: " + touchPoint.distanceToLine(pnt, prevPoint));
-                    Log.d("DATA", "ERAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASE!!!!");
+                    //Log.d("DATA", "midErase says: " + touchPoint.distanceToLine(pnt, prevPoint));
+                    //Log.d("DATA", "ERAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASE!!!!");
                     i.remove();
                     invalidate();
                     return;
@@ -239,6 +258,8 @@ public class InkView extends EditText {
             FileOutputStream fileOut = new FileOutputStream(file);
             ObjectOutputStream stream = new ObjectOutputStream(fileOut);
             stream.writeInt(STROKE_ATTRIBUTES);
+            stream.writeFloat(oldWidth);
+            stream.writeFloat(oldHeight);
             stream.writeInt(strokes.size());
             for (Stroke s : strokes){
                 stream.writeInt(s.points.size());
@@ -250,7 +271,7 @@ public class InkView extends EditText {
                 stream.writeInt(s.highlightingBrush.getColor());
                 stream.writeFloat(s.highlightingBrush.getStrokeWidth());
                 stream.writeLong(s.time);
-                for (Point p : s.points){
+                for (Fpoint p : s.points){
                     stream.writeFloat(p.x);
                     stream.writeFloat(p.y);
                 }
@@ -269,6 +290,8 @@ public class InkView extends EditText {
             ObjectInputStream stream = new ObjectInputStream(fileIn);
 
             int numAttrib  = stream.readInt();
+            oldWidth = stream.readFloat();
+            oldHeight = stream.readFloat();
             int numStrokes = stream.readInt();
             for (int s = 0; s < numStrokes; s++) {
                 int numPoints = stream.readInt();
@@ -282,7 +305,7 @@ public class InkView extends EditText {
                 long t = stream.readLong();
 
                 startStroke(stream.readFloat(), stream.readFloat(),t);
-                // from second stroke, to second-to-last stroke //
+                // from second point, to second-to-last point //
                 for (int p = 1; p < numPoints-1; p++) {
                     midStroke(stream.readFloat(), stream.readFloat());
                 }
@@ -304,9 +327,29 @@ public class InkView extends EditText {
         }
     }
 
+
+    @Override
+    protected void onSizeChanged(int w, int h, int ow, int oh) {
+        if (ow == 0){
+            Matrix transMatrix = new Matrix();
+            float scale = (float)w/oldWidth;
+            transMatrix.setScale(scale, scale, 0, 0);
+            for (Stroke s : strokes) {
+                s.transform(transMatrix);
+                for( Fpoint p : s.points ) {
+                    p.x *= scale;
+                    p.y *= scale;
+                }
+            }
+            oldWidth = (float)w;
+            oldHeight = (float)h;
+        }
+        super.onSizeChanged(w,h,ow,oh);
+    }
+
+
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
-        Log.d("DATA", "You touched ink");
         if (state == TYPING) super.onTouchEvent(motionEvent);
 
         float x = motionEvent.getX();

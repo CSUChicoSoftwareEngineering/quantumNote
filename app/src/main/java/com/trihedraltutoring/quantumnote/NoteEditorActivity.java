@@ -96,6 +96,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
+    int lastTool;
     InkView inkView;
     private NoteItem note;
     AudioRecorder audio;
@@ -172,9 +173,9 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         initArcMenu(arcMenu, ITEM_DRAWABLES);
         final RayMenu rayMenu = (RayMenu) findViewById(R.id.ray_menu);
         iv = (ImageView) findViewById(R.id.imageView2);
-        inkView.requestFocus();
-        inkView.setFocusableInTouchMode(true);
-        inkView.setFocusable(true);
+        //inkView.requestFocus();
+        //inkView.setFocusableInTouchMode(true);
+        //inkView.setFocusable(true);
 
         // Deserialize inkView //
         inkView.deserialize(new File(noteRoot, "inkView"));
@@ -224,7 +225,9 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                         currentTool.setImageResource(R.drawable.texticon);
 
                     } else if (position == 1) {
-                        ((InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(inkView.getWindowToken(), 0);
+                        ((InputMethodManager)getSystemService(
+                                Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(
+                                inkView.getWindowToken(), 0);
 
                         inkView.state = InkView.DRAWING;
                         Toast.makeText(NoteEditorActivity.this, "Ink",
@@ -254,6 +257,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                 }
             });
         }
+
 
 /** NAVDRAWER STUFF
         mNavigationDrawerFragment = (NavigationDrawerFragment)
@@ -653,7 +657,6 @@ public class NoteEditorActivity extends ListActivity implements Observer,
             startTime = t0;
         }
     }
-
 
     ////Recursive class called twice per second ////
     private Runnable secPassed = new Runnable() {
