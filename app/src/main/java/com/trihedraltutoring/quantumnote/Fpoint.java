@@ -6,7 +6,7 @@ import android.util.Log;
  * x,y coordinate floats
  */
 public class Fpoint {
-    public float x, y;
+    public float x, y, a, b, c, dist;
 
     public Fpoint(float x1, float y1){
         x = x1;
@@ -27,8 +27,7 @@ public class Fpoint {
     }
 
     public float cross2D(Fpoint p){
-        //Log.d("DATA", "("+x+"-"+p.y+")*("+y+"-"+p.x+")");
-        return (x-p.y)*(y-p.x);
+        return (x*p.y)-(y*p.x);
     }
 
     public Fpoint minus(Fpoint p){
@@ -44,13 +43,24 @@ public class Fpoint {
     }
 
     public float distanceToLine(Fpoint p1, Fpoint p2 ){
-        Fpoint A = this.minus(p1);
-        //Log.d("DATA", "Finger to point 1: " + A.magnitude());
-        Fpoint B = this.minus(p2);
-        //Log.d("DATA", "Finger to point 2: " + B.magnitude());
-        float c = ( p1.minus(p2) ).magnitude();
-        //Log.d("DATA", "Point 1 to point 2: " + c);
-        if (c == 0) return Float.NaN;
-        return(Math.abs( A.cross2D(B) )/c);
+        c = p1.minus(p2).magnitude();
+        if (c == 0)
+            return Float.NaN;
+        return Math.abs( this.minus(p1).cross2D(this.minus(p2)) )/c;
+    }
+
+    public boolean isBetween(Fpoint p1, Fpoint p2, float error ){
+        dist = distanceToLine(p1, p2);
+        if (dist == Float.NaN) return false;
+        if (dist < error){ // if this point lies near the p1 p2 line
+            // determine if this point is between p1 and p2 //
+            a = this.minus(p1).magnitude();
+            b = this.minus(p2).magnitude();
+            c = p1.minus(p2).magnitude();
+            if (c>a && c>b) {
+                return true;
+            }
+        }
+        return false;
     }
 }

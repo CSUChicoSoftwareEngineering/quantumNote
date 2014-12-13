@@ -43,7 +43,7 @@ public class InkView extends EditText {
     private float oldHeight = 1;
     private long markTf;
     private int litStroke;
-    private int impactDist = 10;  // distance in pixels that qualifies as an impact
+    private int impactDist = 20;  // distance in pixels that qualifies as an impact
     private Fpoint prevPoint;
     private Fpoint newPoint;
     private Handler highLightHandler;
@@ -205,34 +205,33 @@ public class InkView extends EditText {
         s.points.add( new Fpoint(x, y) );
     }
 
-
     private void startErase(){
     }
 
     private void midErase(float x, float y){
         Fpoint touchPoint = new Fpoint(x, y);
-        prevPoint = new Fpoint(999999, 999999);
-
+        if (strokes.size()>0) prevPoint = strokes.get(0).points.get(0);
+        else return;
+        int s = 0;
         Iterator<Stroke> i = strokes.iterator();
-        Log.d("DATA", "Number of strokes: " + strokes.size());
+        //Log.d("DATA", "Number of strokes: " + strokes.size());
         while (i.hasNext()) {
-            Log.d("DATA", "checking a stroke");
+            //Log.d("DATA", "Checking stroke " + s);
             Stroke str = i.next();
             for (Fpoint pnt : str.points) {
-                if (touchPoint.distanceToLine(pnt, prevPoint) < impactDist) {
-                    //Log.d("DATA", "midErase says: " + touchPoint.distanceToLine(pnt, prevPoint));
-                    //Log.d("DATA", "ERAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASE!!!!");
+                if (touchPoint.isBetween(pnt, prevPoint, impactDist)) {
+                    //Log.d("DATA", "Distance to point: " + touchPoint.distanceToLine(pnt, prevPoint));
                     i.remove();
                     invalidate();
                     return;
                 }
                 prevPoint = pnt;
             }
+            s++;
         }
     }
 
     private void endErase(float x, float y){
-
     }
 
     public void stopDynamicHighlighting(){
@@ -327,7 +326,6 @@ public class InkView extends EditText {
         }
     }
 
-
     @Override
     protected void onSizeChanged(int w, int h, int ow, int oh) {
         if (ow == 0){
@@ -346,7 +344,6 @@ public class InkView extends EditText {
         }
         super.onSizeChanged(w,h,ow,oh);
     }
-
 
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
@@ -371,7 +368,6 @@ public class InkView extends EditText {
             case(MotionEvent.ACTION_MOVE):
                 if (!penIsDown) break; // hack to prevent invalid ACTION_MOVE events
                 if (state == ERASING_STROKE){
-                    Log.d("DATA", "About to call midErase");
                     midErase(x, y);
                 }
                 else if (state == SELECTING){
