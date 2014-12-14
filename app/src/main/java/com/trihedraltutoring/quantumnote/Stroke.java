@@ -1,6 +1,5 @@
 package com.trihedraltutoring.quantumnote;
 
-
 import android.graphics.Paint;
 import android.graphics.Path;
 

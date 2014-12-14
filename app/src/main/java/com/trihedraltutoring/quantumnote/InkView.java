@@ -37,8 +37,6 @@ public class InkView extends EditText {
     private Paint currentPaint;
     private Paint dynamichighlightPaint;
     private float xOffset, yOffset;
-    private int currentOrient;
-    private int oldOrient;
     private float oldWidth = 1;
     private float oldHeight = 1;
     private long markTf;
@@ -69,7 +67,6 @@ public class InkView extends EditText {
         //setSelection(0);
         strokes = new LinkedList();
         highLightHandler = new Handler();
-        currentOrient = config.orientation;
         // setup default paint objects //
         currentPaint = new Paint();
         currentPaint.setColor(Color.BLACK);
@@ -86,10 +83,10 @@ public class InkView extends EditText {
      */
     @Override
     public void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
         for(Stroke s : strokes) {
            canvas.drawPath(s, s.brush);
         }
-        super.onDraw(canvas);
     }
 
     @Override

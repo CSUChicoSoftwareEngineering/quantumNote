@@ -3,28 +3,18 @@ package com.trihedraltutoring.quantumnote;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.graphics.Color;
 import android.app.ListActivity;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceActivity;
 import android.provider.MediaStore;
-import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
-import android.view.ContextMenu;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,27 +22,14 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
-
 import com.capricorn.ArcMenu;
 import com.capricorn.RayMenu;
 import com.trihedraltutoring.quantumnote.data.NoteItem;
 import com.trihedraltutoring.quantumnote.data.NotesDataSource;
-//import com.trihedraltutoring.quantumnote.ColorPickerDialog;
-//import com.trihedraltutoring.quantumnote.ColorPickerDialog.OnColorSelectedListener;
-import com.trihedraltutoring.quantumnote.R;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -60,24 +37,20 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-import it.gmariotti.android.example.colorpicker.internal.NsMenuAdapter;
 import it.gmariotti.android.example.colorpicker.Utils;
 import it.gmariotti.android.example.colorpicker.calendarstock.ColorPickerDialog;
 import it.gmariotti.android.example.colorpicker.calendarstock.ColorPickerSwatch;
-import it.gmariotti.android.example.colorpicker.internal.NsMenuItemModel;
 
 public class NoteEditorActivity extends ListActivity implements Observer,
         NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     private int mSelectedColorCal0 = 0;
     int mLastPosition;
-
     private static final int[] ITEM_DRAWABLES = { R.drawable.tri,
             R.drawable.sq,
             R.drawable.cir,
@@ -87,16 +60,8 @@ public class NoteEditorActivity extends ListActivity implements Observer,
             R.drawable.shapes,
             R.drawable.eraser,
             R.drawable.blank};
-
-    /**
-     * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
-     */
     private NavigationDrawerFragment mNavigationDrawerFragment;
-    /**
-     * Used to store the last screen title. For use in {@link #restoreActionBar()}.
-     */
     private CharSequence mTitle;
-    int lastTool;
     InkView inkView;
     private NoteItem note;
     AudioRecorder audio;
@@ -109,49 +74,13 @@ public class NoteEditorActivity extends ListActivity implements Observer,
     Handler dThandler;
     boolean blinkRecord = true;
     MenuItem recMenuItem;
-    //OpenCamera openCam;
-    //static final int REQUEST_IMAGE_CAPTURE = 1;
+    RayMenu rayMenu;
+    ArcMenu arcMenu;
 
-
-
-    //public void openCamera(View view) {
-//        Intent data = new Intent();
-//        data.setAction(Intent.ACTION_GET_CONTENT);
-        //Intent intent = new Intent(this, OpenCamera.class);
-      //  startActivityForResult(intent, 0);
-
-//        Intent getintent = getIntent();
-//
-//        if(getintent.hasExtra("byteArray")) {
-//            ImageView previewThumbnail = new ImageView(this);
-//            Bitmap b = BitmapFactory.decodeByteArray(
-//                    getIntent().getByteArrayExtra("byteArray"), 0, getIntent().getByteArrayExtra("byteArray").length);
-//            previewThumbnail.setImageBitmap(b);
-//            iv = (ImageView) findViewById(R.id.imageView2);
-//            iv.setImageBitmap(b);
-//        }
-
-    //}
-    /**
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (getIntent().hasExtra("byteArray")) {
-            Bitmap b = BitmapFactory.decodeByteArray(
-                    getIntent().getByteArrayExtra("byteArray"), 0, getIntent().getByteArrayExtra("byteArray").length);
-
-            iv = (ImageView) findViewById(R.id.imageView1);
-            iv.setImageBitmap(b);
-        }
-    }
-    **/
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_note_editor);
 
         // Initializations //
@@ -169,18 +98,91 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         sounds = new LinkedList();
         prevMotionEvent = MotionEvent.obtain(0,0,MotionEvent.ACTION_UP,0,0,0);
         inkView = (InkView) findViewById(R.id.inkView); // get inkView defined in xml
-        final ArcMenu arcMenu = (ArcMenu) findViewById(R.id.arc_menu);
-        initArcMenu(arcMenu, ITEM_DRAWABLES);
-        final RayMenu rayMenu = (RayMenu) findViewById(R.id.ray_menu);
+        arcMenu = (ArcMenu) findViewById(R.id.arc_menu);
+        rayMenu = (RayMenu) findViewById(R.id.ray_menu);
         iv = (ImageView) findViewById(R.id.imageView2);
+
+        initArcMenu();
+        initRayMenu();
+
         //inkView.requestFocus();
         //inkView.setFocusableInTouchMode(true);
         //inkView.setFocusable(true);
 
+        loadNote();
+        arcMenu.setVisibility(View.GONE);
+
+        // CURRENTLY UNUSED NAVDRAWER STUFF
+        /**
+        mNavigationDrawerFragment = (NavigationDrawerFragment)
+                getFragmentManager().findFragmentById(R.id.navigation_drawer);
+        mTitle = getTitle();
+
+        // Set up the drawer.
+        mNavigationDrawerFragment.setUp(
+                R.id.navigation_drawer,
+                (DrawerLayout) findViewById(R.id.drawer_layout));
+
+        // Create onGlobalLayout to be called after inkView is drawn ///
+
+        ViewTreeObserver vto = inkView.getViewTreeObserver();
+        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+            @Override
+            public void onGlobalLayout() {
+                inkView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+            }
+        }); **/
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        saveNote();
+    }
+    @Override
+    public void onBackPressed() {
+        saveNote();
+        finish();
+    }
+
+    private void saveNote() {
+        // Stop AudioRecorder //
+        if (audio.getState() == AudioRecorder.PLAYING)
+            audio.stopPlaying();
+        else if (audio.getState() == AudioRecorder.RECORDING)
+            audio.stopRecording();
+
+        // Serialize sounds //
+        try {
+            File file = new File(soundsDir, "data");
+            FileOutputStream fileOut = new FileOutputStream(file);
+            ObjectOutputStream stream = new ObjectOutputStream(fileOut);
+            stream.writeObject(sounds);
+            stream.flush();
+            stream.close();
+        }
+        catch(IOException e) {
+            Log.e("ERROR", "Error saving sounds: " + e);
+        }
+
+        // Serialize inkview //
+        inkView.serialize(new File(noteRoot, "inkView"));
+
+        // Save note text and key //
+        Intent intent = new Intent();
+        String textStr = inkView.getText().toString();
+        if (textStr.equals("")) textStr = "Untitled Note";
+        intent.putExtra("text", textStr);
+        intent.putExtra("key", note.getKey());
+        setResult(RESULT_OK, intent);
+
+    }
+
+    private void loadNote(){
         // Deserialize inkView //
         inkView.deserialize(new File(noteRoot, "inkView"));
         inkView.setCursorVisible(false);
-        arcMenu.setVisibility(View.GONE);
 
         // Deserialize sounds //
         try {
@@ -200,6 +202,59 @@ public class NoteEditorActivity extends ListActivity implements Observer,
 
         inkView.setText(note.getText());
         inkView.setSelection(note.getText().length());
+
+    }
+
+    // Set up the PieMenu //
+    private void initArcMenu() {
+        final int itemCount = ITEM_DRAWABLES.length;
+        for (int i = 0; i < itemCount; i++) {
+            ImageView item = new ImageView(this);
+            item.setImageResource(ITEM_DRAWABLES[i]);
+
+            final int position = i;
+            arcMenu.addItem(item, new OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    if (position == 0) {
+                        Toast.makeText(NoteEditorActivity.this, "Triangle",
+                                Toast.LENGTH_SHORT).show();
+                        inkView.state = InkView.DRAWING_TRI;
+                        ImageView currentTool = (ImageView) findViewById(R.id.control_hint);
+                        currentTool.setImageResource(R.drawable.tri);
+
+                    } else if (position == 1) {
+                        Toast.makeText(NoteEditorActivity.this, "Rectangle",
+                                Toast.LENGTH_SHORT).show();
+                        inkView.state = InkView.DRAWING_RECT;
+                        ImageView currentTool = (ImageView) findViewById(R.id.control_hint);
+                        currentTool.setImageResource(R.drawable.sq);
+
+                    } else if (position == 2) {
+                        Toast.makeText(NoteEditorActivity.this, "Ellipse",
+                                Toast.LENGTH_SHORT).show();
+                        inkView.state = InkView.DRAWING_ELLI;
+                        ImageView currentTool = (ImageView) findViewById(R.id.control_hint);
+                        currentTool.setImageResource(R.drawable.cir);
+
+                    } else if (position == 3) {
+                        Toast.makeText(NoteEditorActivity.this, "Line",
+                                Toast.LENGTH_SHORT).show();
+                        inkView.state = InkView.DRAWING_LINE;
+                        ImageView currentTool = (ImageView) findViewById(R.id.control_hint);
+                        currentTool.setImageResource(R.drawable.line);
+
+                    } else if (position == 4) {
+
+                    }
+                }
+            });
+        }
+    }
+
+    // Set up the RayMenu //
+    private void initRayMenu() {
         final int itemCount = RAY_DRAWABLES.length;
         for(int i = 0; i < itemCount; i++) {
             ImageView item = new ImageView(this);
@@ -257,167 +312,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                 }
             });
         }
-
-
-/** NAVDRAWER STUFF
-        mNavigationDrawerFragment = (NavigationDrawerFragment)
-                getFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mTitle = getTitle();
-
-        // Set up the drawer.
-        mNavigationDrawerFragment.setUp(
-                R.id.navigation_drawer,
-                (DrawerLayout) findViewById(R.id.drawer_layout));
-**/
-        // Create onGlobalLayout to be called after inkView is drawn ///
-        ViewTreeObserver vto = inkView.getViewTreeObserver();
-        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-            @Override
-            public void onGlobalLayout() {
-                inkView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-            }
-        });
     }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        saveNote();
-    }
-    @Override
-    public void onBackPressed() {
-        saveNote();
-        finish();
-    }
-
-    private void saveNote() {
-        if (audio.getState() == AudioRecorder.PLAYING)
-            audio.stopPlaying();
-        else if (audio.getState() == AudioRecorder.RECORDING)
-            audio.stopRecording();
-        String textStr = inkView.getText().toString();
-        if (textStr.equals("")) textStr = "Untitled Note";
-
-        // Serialize inkview //
-        inkView.serialize(new File(noteRoot, "inkView"));
-
-        // Serialize sounds //
-        try {
-            File file = new File(soundsDir, "data");
-            FileOutputStream fileOut = new FileOutputStream(file);
-            ObjectOutputStream stream = new ObjectOutputStream(fileOut);
-
-            stream.writeObject(sounds);
-
-            stream.flush();
-            stream.close();
-        }
-        catch(IOException e) {
-            Log.e("ERROR", "Error saving sounds: " + e);
-        }
-
-        Intent intent = new Intent();
-        intent.putExtra("key", note.getKey());
-        intent.putExtra("text", textStr);
-        setResult(RESULT_OK, intent);
-
-    }
-
-    //This sets up the PieMenu
-    private void initArcMenu(ArcMenu menu, int[] itemDrawables) {
-        final int itemCount = itemDrawables.length;
-        for (int i = 0; i < itemCount; i++) {
-            ImageView item = new ImageView(this);
-            item.setImageResource(itemDrawables[i]);
-
-            final int position = i;
-            menu.addItem(item, new OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    if (position == 0) {
-                        Toast.makeText(NoteEditorActivity.this, "Triangle",
-                                Toast.LENGTH_SHORT).show();
-                        inkView.state = InkView.DRAWING_TRI;
-                        ImageView currentTool = (ImageView) findViewById(R.id.control_hint);
-                        currentTool.setImageResource(R.drawable.tri);
-
-                    } else if (position == 1) {
-                        Toast.makeText(NoteEditorActivity.this, "Rectangle",
-                                Toast.LENGTH_SHORT).show();
-                        inkView.state = InkView.DRAWING_RECT;
-                        ImageView currentTool = (ImageView) findViewById(R.id.control_hint);
-                        currentTool.setImageResource(R.drawable.sq);
-
-                    } else if (position == 2) {
-                        Toast.makeText(NoteEditorActivity.this, "Ellipse",
-                                Toast.LENGTH_SHORT).show();
-                        inkView.state = InkView.DRAWING_ELLI;
-                        ImageView currentTool = (ImageView) findViewById(R.id.control_hint);
-                        currentTool.setImageResource(R.drawable.cir);
-
-                    } else if (position == 3) {
-                        Toast.makeText(NoteEditorActivity.this, "Line",
-                                Toast.LENGTH_SHORT).show();
-                        inkView.state = InkView.DRAWING_LINE;
-                        ImageView currentTool = (ImageView) findViewById(R.id.control_hint);
-                        currentTool.setImageResource(R.drawable.line);
-
-                    } else if (position == 4) {
-
-                    }
-                }
-            });
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    //@Override
-    public void onNavigationDrawerItemSelected(int position) {
-        switch (position) {
-            case 0:
-                break;
-            case 1:
-                break;
-            case 2:
-                break;
-            case 3:
-                break;
-            case 4:
-                break;
-            case 5:
-                break;
-            case 6:
-        }
-        // update the main content by replacing fragments
-        FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
-                .commit();
-    }
-
-
-    public void onSectionAttached(int number) {
-        switch (number) {
-            case 1:
-                mTitle = getString(R.string.title_section1);
-                break;
-            case 2:
-                mTitle = getString(R.string.title_section2);
-                break;
-            case 3:
-                mTitle = getString(R.string.title_section3);
-                break;
-            case 4:
-                mTitle = getString(R.string.title_section4);
-                break;
-            case 5:
-                mTitle = getString(R.string.title_section5);
-                break;
-        }
-    }
-
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void restoreActionBar() {
         ActionBar actionBar = getActionBar();
@@ -435,10 +330,8 @@ public class NoteEditorActivity extends ListActivity implements Observer,
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-
             getMenuInflater().inflate(R.menu.activity_note_editor, menu);
             restoreActionBar();
-
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -470,8 +363,6 @@ public class NoteEditorActivity extends ListActivity implements Observer,
             Toast.makeText(NoteEditorActivity.this, "Camera",
                     Toast.LENGTH_SHORT).show();
 
-
-
             Intent a = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             startActivityForResult(a, 0);
             //startActivityForResult(intent, 0);
@@ -501,7 +392,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         return super.onOptionsItemSelected(item);
     }
 
-    // Implement listener to get selected color value
+    // Implement listener to get selected color value //
     ColorPickerSwatch.OnColorSelectedListener colorcalendarListener = new ColorPickerSwatch.OnColorSelectedListener(){
 
         @Override
@@ -509,11 +400,13 @@ public class NoteEditorActivity extends ListActivity implements Observer,
             mSelectedColorCal0 = color;
             Log.d("DATA", "Color: " + color);
             inkView.setColor(Color.alpha(color), Color.red(color),Color.green(color),Color.blue(color));
+            // Increase to highlighting width for low alpha values //
             if (Color.alpha(color)<255){
                 inkView.setWidth(40);
                 inkView.setHighlightWidth(60);
                 inkView.setHighlightColor(160, 255, 0, 0);
             }
+            // Set pen width for alpha = 255 ///
             else {
                 inkView.setWidth(4);
                 inkView.setHighlightWidth(8);
@@ -522,9 +415,6 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         }
     };
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class PlaceholderFragment extends Fragment implements View.OnClickListener {
         /**
@@ -624,31 +514,6 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         }
     }
 
-
-    /**
-     * Called for all touch events //
-     */
-
-    /**NAVDRAWER STUFF
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent motionEvent) {
-        if (noteText.requestFocus() && inkView.state == inkView.INACTIVE){
-            noteText.dispatchTouchEvent(motionEvent);
-        }
-        if (motionEvent.getAction() == MotionEvent.ACTION_MOVE){
-            // hack to prevent drawing when opening Nav Frame //
-            if(mNavigationDrawerFragment.isVisible() && !prevNavVisible
-                    && inkView.penIsDown) { // not using accessor method (recommended by Android)
-                inkView.deleteLastStroke();
-                inkView.invalidate();
-            }
-        }
-        prevNavVisible = mNavigationDrawerFragment.isVisible();
-        return super.dispatchTouchEvent(motionEvent); // returns whether event was handled
-    }
-     **/
-
     private static class Sound implements Serializable{
         final long serialVersionUID = 1L;
         public long startTime;
@@ -675,6 +540,78 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                 dThandler.postDelayed(secPassed, 500);
         }
     };
+
+
+
+    // CURRENTLY UNUSED NAVDRAWER STUFF
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    //@Override
+    public void onNavigationDrawerItemSelected(int position) {
+        switch (position) {
+            case 0:
+                break;
+            case 1:
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+            case 4:
+                break;
+            case 5:
+                break;
+            case 6:
+        }
+        // update the main content by replacing fragments
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
+                .commit();
+    }
+
+    // CURRENTLY UNUSED NAVDRAWER STUFF
+    public void onSectionAttached(int number) {
+        switch (number) {
+            case 1:
+                mTitle = getString(R.string.title_section1);
+                break;
+            case 2:
+                mTitle = getString(R.string.title_section2);
+                break;
+            case 3:
+                mTitle = getString(R.string.title_section3);
+                break;
+            case 4:
+                mTitle = getString(R.string.title_section4);
+                break;
+            case 5:
+                mTitle = getString(R.string.title_section5);
+                break;
+        }
+    }
+
+    // CURRENTLY UNUSED NAVDRAWER STUFF
+    /**
+     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+     @Override
+     public boolean dispatchTouchEvent(MotionEvent motionEvent) {
+     if (noteText.requestFocus() && inkView.state == inkView.INACTIVE){
+     noteText.dispatchTouchEvent(motionEvent);
+     }
+     if (motionEvent.getAction() == MotionEvent.ACTION_MOVE){
+     // hack to prevent drawing when opening Nav Frame //
+     if(mNavigationDrawerFragment.isVisible() && !prevNavVisible
+     && inkView.penIsDown) { // not using accessor method (recommended by Android)
+     inkView.deleteLastStroke();
+     inkView.invalidate();
+     }
+     }
+     prevNavVisible = mNavigationDrawerFragment.isVisible();
+     return super.dispatchTouchEvent(motionEvent); // returns whether event was handled
+     }
+     **/
+
+
 
 }
 
