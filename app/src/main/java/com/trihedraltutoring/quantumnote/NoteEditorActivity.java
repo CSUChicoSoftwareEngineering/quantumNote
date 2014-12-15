@@ -117,23 +117,24 @@ public class NoteEditorActivity extends ListActivity implements Observer,
 
         // CURRENTLY UNUSED NAVDRAWER STUFF
         /**
-         mNavigationDrawerFragment = (NavigationDrawerFragment)
-         getFragmentManager().findFragmentById(R.id.navigation_drawer);
-         mTitle = getTitle();
+        mNavigationDrawerFragment = (NavigationDrawerFragment)
+                getFragmentManager().findFragmentById(R.id.navigation_drawer);
+        mTitle = getTitle();
 
-         // Set up the drawer.
-         mNavigationDrawerFragment.setUp(
-         R.id.navigation_drawer,
-         (DrawerLayout) findViewById(R.id.drawer_layout));
+        // Set up the drawer.
+        mNavigationDrawerFragment.setUp(
+                R.id.navigation_drawer,
+                (DrawerLayout) findViewById(R.id.drawer_layout));
 
-         // Create onGlobalLayout to be called after inkView is drawn ///
+        // Create onGlobalLayout to be called after inkView is drawn ///
 
-         ViewTreeObserver vto = inkView.getViewTreeObserver();
-         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-        @Override public void onGlobalLayout() {
-        inkView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-        }
+        ViewTreeObserver vto = inkView.getViewTreeObserver();
+        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+            @Override
+            public void onGlobalLayout() {
+                inkView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+            }
         }); **/
     }
 
@@ -268,7 +269,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                     arcMenu.setVisibility(View.GONE);
                     if (position == 0) {
                         inkView.setCursorVisible(true);
-                        inkView.state = inkView.TYPING;
+                        inkView.state = InkView.TYPING;
                         Toast.makeText(NoteEditorActivity.this, "Text",
                                 Toast.LENGTH_SHORT).show();
                         ((InputMethodManager) getSystemService(
@@ -342,14 +343,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
-
-        if(note.getText().length() == 0)
-        {
-            actionBar.setTitle("Untitled Note");
-        }
-        else{
-            actionBar.setTitle(note.getText());
-        }
+        actionBar.setTitle(note.getText());
     }
 
     @Override

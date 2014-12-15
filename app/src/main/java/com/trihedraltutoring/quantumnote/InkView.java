@@ -16,6 +16,7 @@ import android.view.MotionEvent;
 import android.util.AttributeSet;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
 import android.widget.EditText;
 
 import java.io.File;
@@ -44,6 +45,7 @@ public class InkView extends EditText {
     private int impactDist = 20;  // distance in pixels that qualifies as an impact
     private Fpoint prevPoint;
     private Fpoint newPoint;
+    private boolean newNote = true;
     private Handler highLightHandler;
     public boolean penIsDown = false; // public for frequent external access (recommended by Android)
     private boolean dynamicHighlighting = false;
@@ -87,12 +89,6 @@ public class InkView extends EditText {
         for(Stroke s : strokes) {
            canvas.drawPath(s, s.brush);
         }
-    }
-
-    @Override
-    public void onConfigurationChanged (Configuration newConfig){
-        super.onConfigurationChanged(newConfig);
-
     }
 
     /**
@@ -202,9 +198,6 @@ public class InkView extends EditText {
         s.points.add( new Fpoint(x, y) );
     }
 
-    private void startErase(){
-    }
-
     private void midErase(float x, float y){
         Fpoint touchPoint = new Fpoint(x, y);
         if (strokes.size()>0) prevPoint = strokes.get(0).points.get(0);
@@ -226,9 +219,6 @@ public class InkView extends EditText {
             }
             s++;
         }
-    }
-
-    private void endErase(float x, float y){
     }
 
     public void stopDynamicHighlighting(){
@@ -272,6 +262,7 @@ public class InkView extends EditText {
                     stream.writeFloat(p.y);
                 }
             }
+            stream.writeInt(state);
             stream.flush();
             stream.close();
         }
@@ -284,6 +275,7 @@ public class InkView extends EditText {
         try {
             FileInputStream fileIn = new FileInputStream(file.getAbsolutePath());
             ObjectInputStream stream = new ObjectInputStream(fileIn);
+            newNote = false;
 
             int numAttrib  = stream.readInt();
             oldWidth = stream.readFloat();
@@ -307,13 +299,15 @@ public class InkView extends EditText {
                 }
                 endStroke(stream.readFloat(), stream.readFloat());
             }
-
+            state = stream.readInt();
             stream.close();
         }
         catch(IOException e) {
             Log.e("ERROR", "Error loading strokes: " + e);
+
         }
     }
+
     // part of a hack to allow app to use a navDrawer //
     public void deleteLastStroke(){
         int size = strokes.size();
@@ -325,7 +319,16 @@ public class InkView extends EditText {
 
     @Override
     protected void onSizeChanged(int w, int h, int ow, int oh) {
-        if (ow == 0){
+        if (newNote) {
+            int newLines = 500;
+            String textStr = "Untitled Note";
+            for (int i=0; i<newLines; i++){
+                textStr += '\n';
+            }
+            setText(textStr.toCharArray(), 0, newLines+1);
+        }
+        newNote = false;
+        if (ow == 0){ // if note was just opened or created
             Matrix transMatrix = new Matrix();
             float scale = (float)w/oldWidth;
             transMatrix.setScale(scale, scale, 0, 0);
@@ -344,7 +347,9 @@ public class InkView extends EditText {
 
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
-        if (state == TYPING) super.onTouchEvent(motionEvent);
+        if (state == TYPING) {
+            super.onTouchEvent(motionEvent);
+        }
 
         float x = motionEvent.getX();
         float y = motionEvent.getY();
@@ -352,7 +357,7 @@ public class InkView extends EditText {
             case(MotionEvent.ACTION_DOWN):
                 penIsDown = true;
                 if (state == ERASING_STROKE){
-                    startErase();
+
                 }
                 else if (state == SELECTING){
 
@@ -360,6 +365,23 @@ public class InkView extends EditText {
                 else {
                     startStroke(x, y, System.currentTimeMillis());
                 }
+
+                String textStr = getText().toString();
+                int newLines = 0;
+                for (int i=0; i< textStr.length(); i++) {
+                    if (textStr.charAt(i) == '\n')
+                        newLines ++;
+                }
+                if (newLines < 100){
+                    CharSequence newChars;
+                    //for
+                    //append
+                }
+                Log.d("DATA", "New Lines: " + newLines);
+                Log.d("DATA", "ScrollY: " + getScrollY());
+                Log.d("DATA", "maxHeight: " + getHeight());
+
+
                 break;
 
             case(MotionEvent.ACTION_MOVE):
@@ -377,7 +399,7 @@ public class InkView extends EditText {
 
             case(MotionEvent.ACTION_UP):
                 if (state == ERASING_STROKE){
-                    endErase(x, y);
+
                 }
                 else if (state == SELECTING){
 
@@ -447,6 +469,4 @@ public class InkView extends EditText {
             invalidate();
         }
     };
-
-
 }

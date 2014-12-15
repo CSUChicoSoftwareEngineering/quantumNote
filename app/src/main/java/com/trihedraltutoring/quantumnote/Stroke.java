@@ -2,6 +2,7 @@ package com.trihedraltutoring.quantumnote;
 
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.RectF;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -42,6 +43,8 @@ public class Stroke extends Path {
         points.add(new Fpoint(x, y));
         int size = points.size();
         if (size > 2) {
+            //addOval(new RectF(x-brush.getStrokeWidth(), y-brush.getStrokeWidth(),
+            //        x+brush.getStrokeWidth(), y+brush.getStrokeWidth()), Path.Direction.CW);
             Fpoint sub1 = subPoint(points.get(size-2), points.get(size-1));
             Fpoint sub2 = subPoint(points.get(size-1), points.get(size-2));
             cubicTo( points.get(size-2).x, points.get(size-2).y,
