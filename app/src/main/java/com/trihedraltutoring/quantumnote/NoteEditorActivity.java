@@ -51,15 +51,18 @@ public class NoteEditorActivity extends ListActivity implements Observer,
 
     private int mSelectedColorCal0 = 0;
     int mLastPosition;
-    private static final int[] ITEM_DRAWABLES = { R.drawable.tri,
+    private static final int[] ITEM_DRAWABLES = {R.drawable.tri,
             R.drawable.sq,
             R.drawable.cir,
             R.drawable.line};
     private static final int[] RAY_DRAWABLES = {R.drawable.texticon,
             R.drawable.pencil,
             R.drawable.shapes,
+            R.drawable.funbox2,
             R.drawable.eraser,
-            R.drawable.blank};
+            R.drawable.blank,
+            R.drawable.blank
+            };
     private NavigationDrawerFragment mNavigationDrawerFragment;
     private CharSequence mTitle;
     InkView inkView;
@@ -96,7 +99,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         audio = new AudioRecorder(this);
         audio.addObserver((Observer) this);
         sounds = new LinkedList();
-        prevMotionEvent = MotionEvent.obtain(0,0,MotionEvent.ACTION_UP,0,0,0);
+        prevMotionEvent = MotionEvent.obtain(0, 0, MotionEvent.ACTION_UP, 0, 0, 0);
         inkView = (InkView) findViewById(R.id.inkView); // get inkView defined in xml
         arcMenu = (ArcMenu) findViewById(R.id.arc_menu);
         rayMenu = (RayMenu) findViewById(R.id.ray_menu);
@@ -114,24 +117,23 @@ public class NoteEditorActivity extends ListActivity implements Observer,
 
         // CURRENTLY UNUSED NAVDRAWER STUFF
         /**
-        mNavigationDrawerFragment = (NavigationDrawerFragment)
-                getFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mTitle = getTitle();
+         mNavigationDrawerFragment = (NavigationDrawerFragment)
+         getFragmentManager().findFragmentById(R.id.navigation_drawer);
+         mTitle = getTitle();
 
-        // Set up the drawer.
-        mNavigationDrawerFragment.setUp(
-                R.id.navigation_drawer,
-                (DrawerLayout) findViewById(R.id.drawer_layout));
+         // Set up the drawer.
+         mNavigationDrawerFragment.setUp(
+         R.id.navigation_drawer,
+         (DrawerLayout) findViewById(R.id.drawer_layout));
 
-        // Create onGlobalLayout to be called after inkView is drawn ///
+         // Create onGlobalLayout to be called after inkView is drawn ///
 
-        ViewTreeObserver vto = inkView.getViewTreeObserver();
-        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-            @Override
-            public void onGlobalLayout() {
-                inkView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-            }
+         ViewTreeObserver vto = inkView.getViewTreeObserver();
+         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+        @Override public void onGlobalLayout() {
+        inkView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+        }
         }); **/
     }
 
@@ -140,6 +142,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
         super.onPause();
         saveNote();
     }
+
     @Override
     public void onBackPressed() {
         saveNote();
@@ -161,8 +164,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
             stream.writeObject(sounds);
             stream.flush();
             stream.close();
-        }
-        catch(IOException e) {
+        } catch (IOException e) {
             Log.e("ERROR", "Error saving sounds: " + e);
         }
 
@@ -179,7 +181,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
 
     }
 
-    private void loadNote(){
+    private void loadNote() {
         // Deserialize inkView //
         inkView.deserialize(new File(noteRoot, "inkView"));
         inkView.setCursorVisible(false);
@@ -190,13 +192,12 @@ public class NoteEditorActivity extends ListActivity implements Observer,
             FileInputStream fileIn = new FileInputStream(file.getAbsolutePath());
             ObjectInputStream stream = new ObjectInputStream(fileIn);
             try {
-                sounds = (List<Sound>)stream.readObject();
+                sounds = (List<Sound>) stream.readObject();
             } catch (ClassNotFoundException e) {
                 Log.e("ERROR", e.getMessage());
             }
             stream.close();
-        }
-        catch(IOException e) {
+        } catch (IOException e) {
             Log.e("ERROR", "Error loading sounds " + e);
         }
 
@@ -245,8 +246,6 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                         ImageView currentTool = (ImageView) findViewById(R.id.control_hint);
                         currentTool.setImageResource(R.drawable.line);
 
-                    } else if (position == 4) {
-
                     }
                 }
             });
@@ -256,8 +255,8 @@ public class NoteEditorActivity extends ListActivity implements Observer,
     // Set up the RayMenu //
     private void initRayMenu() {
         final int itemCount = RAY_DRAWABLES.length;
-        for(int i = 0; i < itemCount; i++) {
-            ImageView item = new ImageView(this);
+        for (int i = 0; i < itemCount; i++) {
+            final ImageView item = new ImageView(this);
             item.setImageResource(RAY_DRAWABLES[i]);
 
             final int position = i;
@@ -272,7 +271,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                         inkView.state = inkView.TYPING;
                         Toast.makeText(NoteEditorActivity.this, "Text",
                                 Toast.LENGTH_SHORT).show();
-                        ((InputMethodManager)getSystemService(
+                        ((InputMethodManager) getSystemService(
                                 Context.INPUT_METHOD_SERVICE)).toggleSoftInput(
                                 InputMethodManager.SHOW_FORCED,
                                 InputMethodManager.HIDE_IMPLICIT_ONLY);
@@ -280,7 +279,7 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                         currentTool.setImageResource(R.drawable.texticon);
 
                     } else if (position == 1) {
-                        ((InputMethodManager)getSystemService(
+                        ((InputMethodManager) getSystemService(
                                 Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(
                                 inkView.getWindowToken(), 0);
 
@@ -301,7 +300,14 @@ public class NoteEditorActivity extends ListActivity implements Observer,
                         arcMenu.requestFocus();
                         arcMenu.performClick();
                         inkView.setCursorVisible(false);
-                    } else if(position == 3) {
+                        ImageView currentTool = (ImageView) findViewById(R.id.control_hint);
+                        currentTool.setImageResource(R.drawable.shapes);
+
+                    } else if (position == 3) {
+
+                        openColorPicker();
+
+                    } else if (position == 4) {
 
                         Toast.makeText(NoteEditorActivity.this, "Erase",
                                 Toast.LENGTH_SHORT).show();
@@ -313,6 +319,24 @@ public class NoteEditorActivity extends ListActivity implements Observer,
             });
         }
     }
+
+    //called when choosing colors from RayMenu
+    public boolean openColorPicker()
+    {
+
+        int[] mColor = Utils.ColorUtils.colorChoice(this);
+
+        ColorPickerDialog colorcalendar = ColorPickerDialog.newInstance(
+                R.string.color_picker_default_title, mColor,
+                mSelectedColorCal0, 5,
+                Utils.isTablet(this) ? ColorPickerDialog.SIZE_LARGE
+                        : ColorPickerDialog.SIZE_SMALL);
+
+        colorcalendar.setOnColorSelectedListener(colorcalendarListener);
+        colorcalendar.show(getFragmentManager(),"cal");
+        return true;
+    }
+
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void restoreActionBar() {
         ActionBar actionBar = getActionBar();
