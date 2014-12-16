@@ -352,7 +352,7 @@ public class InkView extends EditText {
         }
 
         float x = motionEvent.getX();
-        float y = motionEvent.getY();
+        float y = motionEvent.getY() + getScrollY();
         switch (motionEvent.getAction()){
             case(MotionEvent.ACTION_DOWN):
                 penIsDown = true;
